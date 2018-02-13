@@ -5,11 +5,13 @@
 package main
 
 import (
+	"goji.io"
+	"goji.io/pat"
 	"lighting/amqp"
 	"lighting/amqp/lightingControl"
 	"lighting/amqp/lightingUpdates"
 	"lighting/store"
-	"log"
+	"net/http"
 )
 
 func main() {
@@ -38,25 +40,29 @@ func main() {
 
 	store.Attach(observer)
 
-	for {
-		select {
-		case value := <-observer:
-			log.Printf("Observed channel %d changing to %d", value.Channel, value.Value)
-			if value.Value == 255 {
-				return
-			}
-
-			err = lightingControl.SetValue(1, 255)
-			if err != nil {
-				panic(err)
-			}
-		}
-	}
-
-	//mux := goji.NewMux()
+	//for {
+	//	select {
+	//	case value := <-observer:
+	//		log.Printf("Observed channel %d changing to %d", value.Channel, value.Value)
+	//		if value.Value == 255 {
+	//			return
+	//		}
 	//
-	//err = http.ListenAndServe("localhost:8000", mux)
-	//if err != nil {
-	//	panic(err)
+	//		err = lightingControl.SetValue(1, 255)
+	//		if err != nil {
+	//			panic(err)
+	//		}
+	//	}
 	//}
+
+	mux := goji.NewMux()
+
+	staticFilesLocation := "/Users/chris/Development/Personal/lighting4/src/static"
+
+	mux.Handle(pat.Get("/lighting/*"), http.FileServer(http.Dir(staticFilesLocation)))
+
+	err = http.ListenAndServe("localhost:8000", mux)
+	if err != nil {
+		panic(err)
+	}
 }
