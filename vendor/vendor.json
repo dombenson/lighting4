@@ -147,10 +147,40 @@
 			"revisionTime": "2018-01-25T10:38:03Z"
 		},
 		{
+			"checksumSHA1": "iKhBZEQPcOaAG7CM8IPuwhJeHwc=",
+			"path": "github.com/streadway/amqp",
+			"revision": "fc7fda2371f5327ad39211e09482845b8734cc72",
+			"revisionTime": "2018-01-31T09:42:50Z"
+		},
+		{
 			"checksumSHA1": "khrwl6JCJLYNjXnSDgvIOGlYM8g=",
 			"path": "github.com/tadglines/go-pkgs/crypto/srp",
 			"revision": "1f86682992f1a784aa7592b2be0ae80f194b2479",
 			"revisionTime": "2014-09-24T21:06:55Z"
+		},
+		{
+			"checksumSHA1": "OvrNwcBO+xO4FZ7eMbazho1C3t0=",
+			"path": "goji.io",
+			"revision": "0d89ff54b2c18c9c4ba530e32496aef902d3c6cd",
+			"revisionTime": "2016-11-14T00:05:42Z"
+		},
+		{
+			"checksumSHA1": "WjH6BtYreucaiAqweH8EVTuzfq4=",
+			"path": "goji.io/internal",
+			"revision": "0d89ff54b2c18c9c4ba530e32496aef902d3c6cd",
+			"revisionTime": "2016-11-14T00:05:42Z"
+		},
+		{
+			"checksumSHA1": "gCCLZgKj2pBECowciB75JYaJRx0=",
+			"path": "goji.io/pat",
+			"revision": "0d89ff54b2c18c9c4ba530e32496aef902d3c6cd",
+			"revisionTime": "2016-11-14T00:05:42Z"
+		},
+		{
+			"checksumSHA1": "HiFwLEdH2hi65LxmHk2lKjA3CU8=",
+			"path": "goji.io/pattern",
+			"revision": "0d89ff54b2c18c9c4ba530e32496aef902d3c6cd",
+			"revisionTime": "2016-11-14T00:05:42Z"
 		},
 		{
 			"checksumSHA1": "1zB843WyoSh8oMdbeDfgByEa2TE=",
