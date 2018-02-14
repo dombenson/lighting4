@@ -63,7 +63,7 @@ func SetValue(channelNo lights.ChannelNo, value lights.Value) error {
 	setData := setValuePayload{
 		Payload: payload.Payload{"sv"},
 		Data: setValueData {
-			Channel: channelNo,
+			Channel: channelNo + 1,
 			Value:   value,
 		},
 	}
@@ -73,10 +73,13 @@ func SetValue(channelNo lights.ChannelNo, value lights.Value) error {
 		return err
 	}
 
-	channel.Publish(controlExchange, "", false, false, amqpLib.Publishing {
+	err = channel.Publish(controlExchange, "", false, false, amqpLib.Publishing {
 		ContentType: "application/json",
 		Body:        jsonBytes,
 	})
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -37,3 +37,7 @@ func SetValue(channel lights.ChannelNo, value lights.Value) {
 func GetValue(channel lights.ChannelNo) lights.Value {
 	return values[channel]
 }
+
+func GetLastCommissionedChannel() lights.ChannelNo {
+	return 512
+}

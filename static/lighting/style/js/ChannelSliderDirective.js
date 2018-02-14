@@ -37,9 +37,9 @@ module.directive('channelSlider', function () {
 			$scope.$watch("currentLevel", function (n, o) {
 				if (n != o) {
 					if ($scope.reverse) {
-						ChannelsService.updateChannel($scope.channelid, $scope.maxlevel - $scope.currentLevel);
+						ChannelsService.updateChannel($scope.channelid, $scope.maxlevel - parseInt($scope.currentLevel));
 					} else {
-						ChannelsService.updateChannel($scope.channelid, $scope.currentLevel);
+						ChannelsService.updateChannel($scope.channelid, parseInt($scope.currentLevel));
 					}
 				}
 			});

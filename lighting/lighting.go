@@ -10,7 +10,7 @@ import (
 	"lighting/amqp"
 	"lighting/amqp/lightingControl"
 	"lighting/amqp/lightingUpdates"
-	"lighting/store"
+	"lighting/socket"
 	"net/http"
 )
 
@@ -36,9 +36,9 @@ func main() {
 		panic(err)
 	}
 
-	observer := make(chan store.ValuesChange)
+	//observer := make(chan store.ValuesChange)
 
-	store.Attach(observer)
+	//store.Attach(observer)
 
 	//for {
 	//	select {
@@ -58,6 +58,8 @@ func main() {
 	mux := goji.NewMux()
 
 	staticFilesLocation := "/Users/chris/Development/Personal/lighting4/src/static"
+
+	mux.HandleFunc(pat.Get("/lighting/socket"), socket.Handler)
 
 	mux.Handle(pat.Get("/lighting/*"), http.FileServer(http.Dir(staticFilesLocation)))
 

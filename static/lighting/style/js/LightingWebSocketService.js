@@ -9,7 +9,7 @@ module.factory('LightingWebSocketService', ['$q', '$rootScope', function ($q, $r
 	var currentChannelStatePromise = null;
 	var trackDetailsPromise = null;
 
-	var wsAddress = "ws://" + window.location.href.split("/")[2] + "/lighting/";
+	var wsAddress = "ws://" + window.location.href.split("/")[2] + "/lighting/socket";
 
 	function connectToWebSocket() {
 		var newWs = new WebSocket(wsAddress);

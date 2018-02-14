@@ -135,6 +135,12 @@
 			"revisionTime": "2018-02-10T20:52:14Z"
 		},
 		{
+			"checksumSHA1": "qWSfv6nFxKXv9aIvOB/A+oJ47a8=",
+			"path": "github.com/gorilla/websocket",
+			"revision": "4ac909741dfa57448bfadfdbca0cf7eeaa68f0e2",
+			"revisionTime": "2018-02-01T01:52:56Z"
+		},
+		{
 			"checksumSHA1": "MFb5D6fGctGxRoeYakh0Eo2BF+I=",
 			"path": "github.com/gosexy/to",
 			"revision": "c20e083e31230b84ffa23c5d2fb0bc55f5292681",
