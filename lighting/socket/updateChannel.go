@@ -9,6 +9,8 @@ import (
 	"github.com/gorilla/websocket"
 	"lighting/lights"
 	"lighting/store"
+	"log"
+	"sync"
 )
 
 type updateChannelPayload struct {
@@ -26,7 +28,7 @@ type updateChannelValue struct {
 	FadeTime int              `json:"fadeTime"`
 }
 
-func processUpdateChannel(c *websocket.Conn, message []byte) error {
+func processUpdateChannel(mu *sync.Mutex, c *websocket.Conn, message []byte) error {
 	var details updateChannelPayload
 
 	err := json.Unmarshal(message, &details)
@@ -38,6 +40,8 @@ func processUpdateChannel(c *websocket.Conn, message []byte) error {
 	if err != nil {
 		return err
 	}
+
+	log.Printf("Socket set %d to %d\n", details.Data.Channel.Id, details.Data.Channel.Level)
 
 	return nil
 }

@@ -10,6 +10,7 @@ import (
 	"lighting/lights"
 	"lighting/store"
 	"log"
+	"sync"
 )
 
 type channelStatePayload struct {
@@ -26,19 +27,22 @@ type channelStateValue struct {
 	CurrentLevel lights.Value     `json:"currentLevel"`
 }
 
-func processChannelState(c *websocket.Conn) error {
+func processChannelState(mu *sync.Mutex, c *websocket.Conn) error {
 	log.Println("channelState")
 
 	lastCommissionedChannel := store.GetLastCommissionedChannel()
 
 	channelStates := make([]channelStateValue, 0, lastCommissionedChannel)
 
-	for i := lights.ChannelNo(0); i < lastCommissionedChannel; i++ {
+	for i := lights.ChannelNo(1); i < lastCommissionedChannel; i++ {
 		channelStates = append(channelStates, channelStateValue{
 			Id:           i,
 			CurrentLevel: store.GetValue(i),
 		})
 	}
+
+	mu.Lock()
+	defer mu.Unlock()
 
 	details := channelStatePayload {
 		socketPayload: socketPayload {channelState},

@@ -7,8 +7,10 @@ package socket
 import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
+	"lighting/store"
 	"log"
 	"net/http"
+	"sync"
 )
 
 var upgrader = websocket.Upgrader{} // use default options
@@ -22,6 +24,7 @@ const (
 	trackDetails  = "trackDetails"
 	updateChannel = "updateChannel"
 	ping          = "ping"
+	notifyChange  = "uC"
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -31,32 +34,41 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer c.Close()
+
+	mu := &sync.Mutex{}
+
+	unsubscribeFn := store.Subscribe(notifyValueChanged(mu, c))
+	defer unsubscribeFn()
+
 	for {
-		mt, message, err := c.ReadMessage()
-		if err != nil {
-			log.Println("read:", err)
-			break
-		}
+		performWebsocketCycle(mu, c)
+	}
+}
+func performWebsocketCycle(mu *sync.Mutex, c *websocket.Conn) {
+	mt, message, err := c.ReadMessage()
+	if err != nil {
+		log.Println("read:", err)
+		return
+	}
 
-		if mt == websocket.TextMessage {
-			var details socketPayload
-			json.Unmarshal(message, &details)
+	if mt == websocket.TextMessage {
+		var details socketPayload
+		json.Unmarshal(message, &details)
 
-			switch details.Type {
-			case ping:
-				log.Println("ping")
-			case channelState:
-				err = processChannelState(c)
-				if err != nil {
-					log.Println("channelState:", err)
-				}
-			case trackDetails:
-				log.Println("trackDetails")
-			case updateChannel:
-				err = processUpdateChannel(c, message)
-				if err != nil {
-					log.Println("updateChannel:", err)
-				}
+		switch details.Type {
+		case ping:
+			log.Println("ping")
+		case channelState:
+			err = processChannelState(mu, c)
+			if err != nil {
+				log.Println("channelState:", err)
+			}
+		case trackDetails:
+			log.Println("trackDetails")
+		case updateChannel:
+			err = processUpdateChannel(mu, c, message)
+			if err != nil {
+				log.Println("updateChannel:", err)
 			}
 		}
 	}

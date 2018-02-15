@@ -27,6 +27,13 @@ type setValuePayload struct {
 	Data setValueData `json:"data"`
 }
 
+type requestValuesData []lights.ChannelNo
+
+type requestValuesPayload struct {
+	payload.Payload
+	Data requestValuesData `json:"data"`
+}
+
 func Start() error {
 	if started {
 		return nil
@@ -63,12 +70,39 @@ func SetValue(channelNo lights.ChannelNo, value lights.Value) error {
 	setData := setValuePayload{
 		Payload: payload.Payload{"sv"},
 		Data: setValueData {
-			Channel: channelNo + 1,
+			Channel: channelNo,
 			Value:   value,
 		},
 	}
 
 	jsonBytes, err := json.Marshal(setData)
+	if err != nil {
+		return err
+	}
+
+	err = channel.Publish(controlExchange, "", false, false, amqpLib.Publishing {
+		ContentType: "application/json",
+		Body:        jsonBytes,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func RequestValues() error {
+	if !started {
+		panic("lighting.control exchange not started")
+	}
+
+	channel := amqp.GetChannel()
+
+	requestData := requestValuesPayload{
+		Payload: payload.Payload{"rv"},
+	}
+
+	jsonBytes, err := json.Marshal(requestData)
 	if err != nil {
 		return err
 	}

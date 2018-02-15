@@ -153,6 +153,12 @@
 			"revisionTime": "2018-01-25T10:38:03Z"
 		},
 		{
+			"checksumSHA1": "eDQ6f1EsNf+frcRO/9XukSEchm8=",
+			"path": "github.com/satori/go.uuid",
+			"revision": "36e9d2ebbde5e3f13ab2e25625fd453271d6522e",
+			"revisionTime": "2018-01-03T17:44:51Z"
+		},
+		{
 			"checksumSHA1": "iKhBZEQPcOaAG7CM8IPuwhJeHwc=",
 			"path": "github.com/streadway/amqp",
 			"revision": "fc7fda2371f5327ad39211e09482845b8734cc72",

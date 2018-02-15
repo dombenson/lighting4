@@ -11,6 +11,7 @@ import (
 	"lighting/amqp/lightingControl"
 	"lighting/amqp/lightingUpdates"
 	"lighting/socket"
+	"lighting/store"
 	"net/http"
 )
 
@@ -31,29 +32,12 @@ func main() {
 		panic(err)
 	}
 
+	err = store.Sync()
+
 	err = lightingControl.SetValue(1, 235)
 	if err != nil {
 		panic(err)
 	}
-
-	//observer := make(chan store.ValuesChange)
-
-	//store.Attach(observer)
-
-	//for {
-	//	select {
-	//	case value := <-observer:
-	//		log.Printf("Observed channel %d changing to %d", value.Channel, value.Value)
-	//		if value.Value == 255 {
-	//			return
-	//		}
-	//
-	//		err = lightingControl.SetValue(1, 255)
-	//		if err != nil {
-	//			panic(err)
-	//		}
-	//	}
-	//}
 
 	mux := goji.NewMux()
 

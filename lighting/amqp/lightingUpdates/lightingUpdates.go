@@ -88,7 +88,7 @@ func Start() error {
 			}
 
 			switch details.Event {
-			case "vs", "value-set":
+			case "vs", "value-set", "vr", "value-requested":
 				for _, v := range details.Data {
 					store.SetValue(v.Channel, v.Value)
 				}
