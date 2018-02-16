@@ -5,11 +5,13 @@
 package store
 
 import (
+	"github.com/op/go-logging"
 	"lighting/amqp/lightingControl"
 	"lighting/lights"
-	"log"
 	"sync"
 )
+
+var log = logging.MustGetLogger("store")
 
 var mu *sync.RWMutex
 var values map[lights.ChannelNo]lights.Value
@@ -82,7 +84,7 @@ func Reset() {
 	for channel := lights.ChannelNo(1); channel <= GetLastCommissionedChannel(); channel++ {
 		err := lightingControl.SetValue(channel, values[channel])
 		if err != nil {
-			log.Println("[store] Unable to transmit existing value", err)
+			log.Error("Unable to transmit existing value", err)
 		}
 	}
 }

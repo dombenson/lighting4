@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"lighting/channelUpdater"
 	"lighting/lights"
-	"log"
 )
 
 type updateChannelPayload struct {
@@ -34,7 +33,7 @@ func (this *socketConnection) processUpdateChannel(message []byte) error {
 		return err
 	}
 
-	log.Printf("[socket] (%d) 'uC' %d -> %d\n", this.id, details.Data.Channel.Id, details.Data.Channel.Value)
+	log.Debugf("(%d) 'uC' %d -> %d", this.id, details.Data.Channel.Id, details.Data.Channel.Value)
 
 	channelUpdater.GetChannelUpdater(details.Data.Channel.Id).UpdateValue(details.Data.Channel.Value)
 

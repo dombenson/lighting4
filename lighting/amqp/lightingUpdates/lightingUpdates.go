@@ -6,13 +6,15 @@ package lightingUpdates
 
 import (
 	"encoding/json"
+	"github.com/op/go-logging"
 	amqpLib "github.com/streadway/amqp"
 	"lighting/amqp"
 	"lighting/amqp/payload"
 	"lighting/lights"
 	"lighting/store"
-	"log"
 )
+
+var log = logging.MustGetLogger("lighting.updates")
 
 var updateQueue amqpLib.Queue
 
@@ -85,29 +87,29 @@ func Start() error {
 
 			err := json.Unmarshal(d.Body, &details)
 			if err != nil {
-				log.Println(err)
+				log.Error(err)
 			} else {
 				switch details.Event {
 				case "vs", "value-set", "vr", "value-requested":
 					for _, v := range details.Data {
 						if v.SeqNo > store.GetLastSeenSeqNo(v.Channel) {
-							log.Printf("[lighting.updates] Set %d to %d (%d)\n", v.Channel, v.Value, v.SeqNo)
+							log.Debugf("Set %d to %d (%d)", v.Channel, v.Value, v.SeqNo)
 							store.SetLastSeenSeqNo(v.Channel, v.SeqNo)
 							store.SetValue(v.Channel, v.Value)
 						}
 					}
 				case "hr", "hardware-reset":
-					log.Println("[lighting.updates] Hardware Reset")
+					log.Info("Hardware Reset")
 					store.Reset()
 				default:
-					log.Println("[lighting.updates] Unsupported message", details)
+					log.Error("Unsupported message", details)
 				}
 			}
 		}
 	}()
 
 	started = true
-	log.Println("[lighting.updates] AMQP started")
+	log.Info("AMQP started")
 
 	return nil
 }

@@ -5,13 +5,15 @@
 package channelUpdater
 
 import (
+	"github.com/op/go-logging"
 	"lighting/lights"
 	"lighting/store"
 	"lighting/util/debouncer"
-	"log"
 	"reflect"
 	"time"
 )
+
+var log = logging.MustGetLogger("channelUpdater")
 
 var channelUpdaters map[lights.ChannelNo]*ChannelUpdater
 
@@ -45,13 +47,13 @@ func newChannelUpdater(channelNo lights.ChannelNo) *ChannelUpdater {
 		Callback: func(data interface{}) {
 			value, ok := data.(lights.Value)
 			if !ok {
-				log.Printf("[channelUpdate] (%d) type assertion failed (%s)\n", channelNo, reflect.TypeOf(data))
+				log.Errorf("(%d) type assertion failed (%s)", channelNo, reflect.TypeOf(data))
 				return
 			}
 
 			err := store.UpdateValue(channelNo, value)
 			if err != nil {
-				log.Printf("[channelUpdate] (%d) error updating value (%s)", channelNo, err)
+				log.Errorf("(%d) error updating value (%s)", channelNo, err)
 				return
 			}
 		},

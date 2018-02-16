@@ -9,7 +9,6 @@ import (
 	"github.com/gorilla/websocket"
 	"lighting/lights"
 	"lighting/store"
-	"log"
 )
 
 type channelStatePayload struct {
@@ -58,7 +57,7 @@ func (this *socketConnection) processChannelState() error {
 		return err
 	}
 
-	log.Printf("[socket] (%d) 'channelState' sent\n", this.id)
+	log.Infof("(%d) 'channelState' sent", this.id)
 
 	return err
 }

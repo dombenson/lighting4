@@ -5,12 +5,14 @@
 package amqp
 
 import (
+	"github.com/op/go-logging"
 	"github.com/streadway/amqp"
-	"log"
 )
 
 var conn *amqp.Connection
 var channel *amqp.Channel
+
+var log = logging.MustGetLogger("amqp")
 
 func Init() error {
 	if channel != nil || conn != nil {
@@ -30,7 +32,7 @@ func Init() error {
 		return err
 	}
 
-	log.Println("[amqp] Initialised")
+	log.Info("Initialised")
 
 	return nil
 }
@@ -44,23 +46,23 @@ func GetChannel() *amqp.Channel {
 
 func Close() {
 	if channel != nil {
-		log.Println("[amqp] Closing AMQP channel")
+		log.Info("Closing AMQP channel")
 		err := channel.Close()
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 		channel = nil
 	}
 
 	if conn != nil {
-		log.Println("[amqp] Closing AMQP connection")
+		log.Info("Closing AMQP connection")
 		err := conn.Close()
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 
 		conn = nil
 	}
 
-	log.Println("[amqp] Finished closing AMQP")
+	log.Info("Finished closing AMQP")
 }

@@ -5,6 +5,7 @@
 package main
 
 import (
+	"github.com/op/go-logging"
 	"goji.io"
 	"goji.io/pat"
 	"lighting/amqp"
@@ -13,9 +14,16 @@ import (
 	"lighting/socket"
 	"lighting/store"
 	"net/http"
+	"os"
 )
 
 func main() {
+	backend1 := logging.NewLogBackend(os.Stderr, "", 0)
+	backend1Leveled := logging.AddModuleLevel(backend1)
+	backend1Leveled.SetLevel(logging.INFO, "")
+
+	logging.SetBackend(backend1Leveled)
+
 	err := amqp.Init()
 	if err != nil {
 		panic(err)

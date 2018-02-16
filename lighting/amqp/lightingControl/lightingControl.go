@@ -6,14 +6,16 @@ package lightingControl
 
 import (
 	"encoding/json"
+	"github.com/op/go-logging"
 	amqpLib "github.com/streadway/amqp"
 	"lighting/amqp"
 	"lighting/amqp/payload"
 	"lighting/lights"
-	"log"
 )
 
 const controlExchange = "lighting.control"
+
+var log = logging.MustGetLogger("lighting.control")
 
 var started bool
 
@@ -54,7 +56,7 @@ func Start() error {
 		return err
 	}
 
-	log.Println("[lighting.control] AMQP started")
+	log.Info("AMQP started")
 
 	started = true
 	return nil

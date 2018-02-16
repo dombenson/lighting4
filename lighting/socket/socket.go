@@ -7,11 +7,13 @@ package socket
 import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
+	"github.com/op/go-logging"
 	"lighting/store"
-	"log"
 	"net/http"
 	"sync"
 )
+
+var log = logging.MustGetLogger("socket")
 
 var upgrader = websocket.Upgrader{} // use default options
 var lastId int
@@ -58,12 +60,12 @@ func newSocketConnection(w http.ResponseWriter, r *http.Request) (*socketConnect
 func Handler(w http.ResponseWriter, r *http.Request) {
 	connection, err := newSocketConnection(w, r)
 	if err != nil {
-		log.Printf("[socket] could not open web socket connection (%s)\n", err)
+		log.Errorf("could not open web socket connection (%s)", err)
 		return
 	}
 	defer connection.close()
 
-	log.Printf("[socket] (%d) connected from '%s'\n", connection.id, r.RemoteAddr)
+	log.Infof("(%d) connected from '%s'", connection.id, r.RemoteAddr)
 
 	connection.start()
 }
@@ -93,11 +95,11 @@ func (this *socketConnection) performWebsocketCycle() bool {
 	if err != nil {
 
 		if websocket.IsCloseError(err, websocket.CloseAbnormalClosure, websocket.CloseNormalClosure) {
-			log.Printf("[socket] (%d) closed\n", this.id)
+			log.Infof("(%d) closed", this.id)
 			return true
 		}
 
-		log.Printf("[socket] (%d) error (%s)\n", this.id, err)
+		log.Errorf("(%d) error (%s)", this.id, err)
 		return true
 	}
 
@@ -107,18 +109,18 @@ func (this *socketConnection) performWebsocketCycle() bool {
 
 		switch details.Type {
 		case ping:
-			log.Printf("[socket] (%d) 'ping'\n", this.id)
+			log.Debugf("(%d) 'ping'", this.id)
 		case channelState:
 			err = this.processChannelState()
 			if err != nil {
-				log.Printf("[socket] (%d) 'channelState' processing error (%s)\n", this.id, err)
+				log.Errorf("(%d) 'channelState' processing error (%s)", this.id, err)
 			}
 		case trackDetails:
-			log.Println("trackDetails")
+			log.Info("(%d) 'trackDetails' not currently handled")
 		case updateChannel:
 			err = this.processUpdateChannel(message)
 			if err != nil {
-				log.Printf("[socket] (%d) 'updateChannel' processing error (%s)\n", this.id, err)
+				log.Errorf("(%d) 'updateChannel' processing error (%s)", this.id, err)
 			}
 		}
 	}
