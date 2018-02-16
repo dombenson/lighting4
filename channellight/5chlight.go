@@ -1,6 +1,9 @@
 package channellight
 
-import "github.com/brutella/hc/service"
+import (
+	"github.com/brutella/hc/service"
+	"math"
+)
 
 type FiveChannelColor struct {
 	FourChannelColor
@@ -32,15 +35,15 @@ func (this *FiveChannelLight) GetOutputColor() FiveChannelColor {
 }
 
 func (this *FiveChannelColor) calculateRed(color HSLColor) {
-	this.Red = scaleSat(color.Saturation, this.calculateBaseRed(color))
+	this.Red = this.scaleSat(color.Saturation, this.calculateBaseRed(color))
 }
 
 func (this *FiveChannelColor) calculateGreen(color HSLColor) {
-	this.Green = scaleSat(color.Saturation, this.calculateBaseGreen(color))
+	this.Green = this.scaleSat(color.Saturation, this.calculateBaseGreen(color))
 }
 
 func (this *FiveChannelColor) calculateBlue(color HSLColor) {
-	this.Blue = scaleSat(color.Saturation, this.calculateBaseBlue(color))
+	this.Blue = this.scaleSat(color.Saturation, this.calculateBaseBlue(color))
 }
 
 func (this *FiveChannelColor) calculateWhite(color HSLColor) {
@@ -49,4 +52,12 @@ func (this *FiveChannelColor) calculateWhite(color HSLColor) {
 		return
 	}
 	this.White = linearScale(color.Saturation, 100, 50)
+}
+
+
+func (this *FiveChannelColor) scaleSat(saturation float64, baseVal int) int {
+	if saturation > 50 {
+		return baseVal
+	}
+	return int(math.Floor(saturation*float64(baseVal)/50 + 0.5))
 }

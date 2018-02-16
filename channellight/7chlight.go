@@ -29,5 +29,5 @@ func (this *SevenChannelLight) GetOutputColor() SevenChannelColor {
 }
 
 func (this *SevenChannelColor) calculateUv(color HSLColor) {
-	this.Uv = scaleSat(color.Saturation, multiStop(color.Hue, 350, 240, 290, 310))
+	this.Uv = this.scaleSat(color.Saturation, multiStop(color.Hue, 350, 240, 290, 310))
 }

@@ -37,10 +37,3 @@ func multiStop(val float64, zeroOne, zeroTwo, maxOne, maxTwo int) int {
 	}
 	return linearScale(val, zeroOne, maxTwo)
 }
-
-func scaleSat(saturation float64, baseVal int) int {
-	if saturation > 50 {
-		return baseVal
-	}
-	return int(math.Floor(saturation*float64(baseVal)/50 + 0.5))
-}

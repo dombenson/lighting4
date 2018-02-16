@@ -32,13 +32,13 @@ func (this *SixChannelLight) GetOutputColor() SixChannelColor {
 }
 
 func (this *SixChannelColor) calculateRed(color HSLColor) {
-	this.Red = scaleSat(color.Saturation, multiStop(color.Hue, 30, 240, 300, 15))
+	this.Red = this.scaleSat(color.Saturation, multiStop(color.Hue, 30, 240, 300, 15))
 }
 
 func (this *SixChannelColor) calculateGreen(color HSLColor) {
-	this.Green = scaleSat(color.Saturation, multiStop(color.Hue, 240, 30, 90, 180))
+	this.Green = this.scaleSat(color.Saturation, multiStop(color.Hue, 240, 30, 90, 180))
 }
 
 func (this *SixChannelColor) calculateAmber(color HSLColor) {
-	this.Amber = scaleSat(color.Saturation, multiStop(color.Hue, 120, 0, 15, 70))
+	this.Amber = this.scaleSat(color.Saturation, multiStop(color.Hue, 120, 0, 15, 70))
 }
