@@ -23,6 +23,7 @@ type channelStateData struct {
 type channelStateValue struct {
 	Id           lights.ChannelNo `json:"id"`
 	CurrentLevel lights.Value     `json:"currentLevel"`
+	SeqNo        int              `json:"seqNo"`
 }
 
 func (this *socketConnection) processChannelState() error {
@@ -31,9 +32,12 @@ func (this *socketConnection) processChannelState() error {
 	channelStates := make([]channelStateValue, 0, lastCommissionedChannel)
 
 	for i := lights.ChannelNo(1); i <= lastCommissionedChannel; i++ {
+		currentValue, currentSeqNo := store.GetValueAndSeqNo(i)
+
 		channelStates = append(channelStates, channelStateValue{
 			Id:           i,
-			CurrentLevel: store.GetValue(i),
+			CurrentLevel: currentValue,
+			SeqNo:        currentSeqNo,
 		})
 	}
 

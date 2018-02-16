@@ -64,6 +64,40 @@ func newChannelUpdater(channelNo lights.ChannelNo) *ChannelUpdater {
 	return &updater
 }
 
+func (this *ChannelUpdater) UpdateValueWithFade(startValue, endValue lights.Value, duration time.Duration) {
+	this.UpdateValue(startValue)
+
+	if startValue == endValue {
+		return
+	}
+
+	sizeOfChange := endValue - startValue
+
+	stepDuration := time.Duration(int64(duration) / int64(sizeOfChange))
+
+	log.Info("stepDuration", stepDuration)
+
+	ticker := time.NewTicker(stepDuration)
+
+	currentValue := startValue
+
+	go func() {
+		for range ticker.C {
+			if startValue < endValue {
+				currentValue += 1
+			} else {
+				currentValue -= 1
+			}
+
+			this.UpdateValue(currentValue)
+
+			if currentValue == endValue {
+				ticker.Stop()
+			}
+		}
+	}()
+}
+
 func (this *ChannelUpdater) UpdateValue(value lights.Value) {
 	this.channelDebouncer.Set(value)
 }

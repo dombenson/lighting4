@@ -92,9 +92,9 @@ func Start() error {
 				switch details.Event {
 				case "vs", "value-set", "vr", "value-requested":
 					for _, v := range details.Data {
-						if v.SeqNo > store.GetLastSeenSeqNo(v.Channel) {
+						if v.SeqNo > store.GetLastSeenHardwareSeqNo(v.Channel) {
 							log.Debugf("Set %d to %d (%d)", v.Channel, v.Value, v.SeqNo)
-							store.SetLastSeenSeqNo(v.Channel, v.SeqNo)
+							store.SetLastSeenHardwareSeqNo(v.Channel, v.SeqNo)
 							store.SetValue(v.Channel, v.Value)
 						}
 					}

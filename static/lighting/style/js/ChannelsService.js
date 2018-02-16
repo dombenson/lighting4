@@ -12,26 +12,28 @@ module.factory('ChannelsService', ['$q', '$rootScope', 'LightingAPIService', 'Li
     var channelId = data.c.i;
     var channelLevel = data.c.l;
     var seqNo = data.c.s;
-    var lastSeenSeqNo = 0;
 
-      if (lastSeenSeqNo.hasOwnProperty(channelId)) {
-        lastSeenSeqNo = lastSeenSeqNos[channelId];
-      }
+    $rootScope.$apply(function() {
+      notifyChannelLister(channelId, channelLevel, seqNo);
+    });
 
-    if (seqNo > lastSeenSeqNo) {
-      $rootScope.$apply(function() {
-        notifyChannelLister(channelId, channelLevel, seqNo);
-      });
-    }
   });
 
   function notifyChannelLister(channelId, channelLevel, seqNo) {
-    currentChannelLevels[channelId] = channelLevel;
+    var lastSeenSeqNo = 0;
 
-    if(channelListeners.hasOwnProperty(channelId)) {
-      var arr = channelListeners[channelId];
-      for (var i = 0; i < arr.length; i++) {
-        arr[i](channelLevel);
+    if (lastSeenSeqNos.hasOwnProperty(channelId)) {
+      lastSeenSeqNo = lastSeenSeqNos[channelId];
+    }
+    if (seqNo > lastSeenSeqNo) {
+      lastSeenSeqNos[channelId] = seqNo;
+      currentChannelLevels[channelId] = channelLevel;
+
+      if(channelListeners.hasOwnProperty(channelId)) {
+        var arr = channelListeners[channelId];
+        for (var i = 0; i < arr.length; i++) {
+          arr[i](channelLevel);
+        }
       }
     }
   }
@@ -45,7 +47,18 @@ module.factory('ChannelsService', ['$q', '$rootScope', 'LightingAPIService', 'Li
       channelsCachedPromise.then(function(channels) {
         currentChannelLevels = {};
         channels.forEach(function(channel) {
-          currentChannelLevels[channel.id] = channel.currentLevel;
+          var lastSeenSeqNo = 0;
+
+          if (lastSeenSeqNos.hasOwnProperty(channel.id)) {
+            lastSeenSeqNo = lastSeenSeqNos[channel.id];
+          }
+
+          if (lastSeenSeqNo > channel.seqNo) {
+            channel.currentLevel = currentChannelLevels[channel.id];
+          } else {
+            currentChannelLevels[channel.id] = channel.currentLevel;
+            lastSeenSeqNos[channel.id] = channel.seqNo;
+          }
         });
       });
     }
@@ -54,7 +67,9 @@ module.factory('ChannelsService', ['$q', '$rootScope', 'LightingAPIService', 'Li
   };
 
   Service.updateChannel = function(id, level) {
-    LightingWebSocketService.updateChannel(id, level);
+    if (lastSeenSeqNos.hasOwnProperty(id)) {
+      LightingWebSocketService.updateChannel(id, level, lastSeenSeqNos[id]);
+    }
   };
 
   Service.attachChannelListener = function(channelId, callback) {

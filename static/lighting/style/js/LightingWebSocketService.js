@@ -103,8 +103,8 @@ module.factory('LightingWebSocketService', ['$q', '$rootScope', function ($q, $r
 		return deferred.promise;
 	};
 
-	Service.updateChannel = function (id, level) {
-		sendRequest({type: 'updateChannel', data: {channel: {id: id, level: level, fadeTime: 0}}});
+	Service.updateChannel = function (id, level, seqNo) {
+		sendRequest({type: 'updateChannel', data: {channel: {id: id, level: level, seqNo: seqNo, fadeTime: 0}}});
 	};
 
 	Service.setFixtureEnabled = function (name, enabled) {

@@ -16,12 +16,12 @@ var log = logging.MustGetLogger("store")
 var mu *sync.RWMutex
 var values map[lights.ChannelNo]lights.Value
 var valueSequences map[lights.ChannelNo]int
-var lastSeenSeqs map[lights.ChannelNo]int
+var lastSeenHardwareSeqNos map[lights.ChannelNo]int
 
 func init() {
 	values = make(map[lights.ChannelNo]lights.Value)
 	valueSequences = make(map[lights.ChannelNo]int)
-	lastSeenSeqs = make(map[lights.ChannelNo]int)
+	lastSeenHardwareSeqNos = make(map[lights.ChannelNo]int)
 	mu = &sync.RWMutex{}
 }
 
@@ -79,7 +79,7 @@ func Reset() {
 	mu.Lock()
 	defer mu.Unlock()
 
-	lastSeenSeqs = make(map[lights.ChannelNo]int)
+	lastSeenHardwareSeqNos = make(map[lights.ChannelNo]int)
 
 	for channel := lights.ChannelNo(1); channel <= GetLastCommissionedChannel(); channel++ {
 		err := lightingControl.SetValue(channel, values[channel])
@@ -96,20 +96,34 @@ func GetValue(channel lights.ChannelNo) lights.Value {
 	return values[channel]
 }
 
+func GetValueAndSeqNo(channel lights.ChannelNo) (lights.Value, int) {
+	mu.RLock()
+	defer mu.RUnlock()
+
+	return values[channel], valueSequences[channel]
+}
+
+func GetSeqNo(channel lights.ChannelNo) int {
+	mu.RLock()
+	defer mu.RUnlock()
+
+	return valueSequences[channel]
+}
+
 func GetLastCommissionedChannel() lights.ChannelNo {
 	return 512
 }
 
-func GetLastSeenSeqNo(channelNo lights.ChannelNo) int {
+func GetLastSeenHardwareSeqNo(channelNo lights.ChannelNo) int {
 	mu.RLock()
 	defer mu.RUnlock()
 
-	return lastSeenSeqs[channelNo]
+	return lastSeenHardwareSeqNos[channelNo]
 }
 
-func SetLastSeenSeqNo(channelNo lights.ChannelNo, seqNo int) {
+func SetLastSeenHardwareSeqNo(channelNo lights.ChannelNo, seqNo int) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	lastSeenSeqs[channelNo] = seqNo
+	lastSeenHardwareSeqNos[channelNo] = seqNo
 }

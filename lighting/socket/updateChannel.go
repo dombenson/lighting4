@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"lighting/channelUpdater"
 	"lighting/lights"
+	"lighting/store"
 )
 
 type updateChannelPayload struct {
@@ -22,6 +23,7 @@ type updateChannelData struct {
 type updateChannelValue struct {
 	Id       lights.ChannelNo `json:"id"`
 	Value    lights.Value     `json:"level"`
+	SeqNo    int              `json:"seqNo"`
 	FadeTime int              `json:"fadeTime"`
 }
 
@@ -33,9 +35,14 @@ func (this *socketConnection) processUpdateChannel(message []byte) error {
 		return err
 	}
 
-	log.Debugf("(%d) 'uC' %d -> %d", this.id, details.Data.Channel.Id, details.Data.Channel.Value)
+	currentValue, currentSeqNo := store.GetValueAndSeqNo(details.Data.Channel.Id)
 
-	channelUpdater.GetChannelUpdater(details.Data.Channel.Id).UpdateValue(details.Data.Channel.Value)
+	if currentValue != details.Data.Channel.Value && currentSeqNo <= details.Data.Channel.SeqNo {
+		log.Infof("(%d) 'updateChannel' %d -> %d (%d)", this.id, details.Data.Channel.Id, details.Data.Channel.Value, details.Data.Channel.SeqNo)
+		channelUpdater.GetChannelUpdater(details.Data.Channel.Id).UpdateValue(details.Data.Channel.Value)
+	} else {
+		log.Debugf("(%d) 'updateChannel' [ignored] %d -> %d (%d)", this.id, details.Data.Channel.Id, details.Data.Channel.Value, details.Data.Channel.SeqNo)
+	}
 
 	return nil
 }
