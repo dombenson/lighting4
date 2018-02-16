@@ -5,6 +5,7 @@
 package main
 
 import (
+	"channellight"
 	"github.com/brutella/hc"
 	"github.com/brutella/hc/accessory"
 	"github.com/brutella/hc/service"
@@ -49,7 +50,7 @@ func main() {
 		convertColorsForLight(light1.Lightbulb)
 	})
 
-	hc.OnTermination(func(){
+	hc.OnTermination(func() {
 		<-t.Stop()
 	})
 
@@ -57,43 +58,25 @@ func main() {
 }
 
 func convertColorsForLight(lightbulb *service.Lightbulb) {
-	hue := lightbulb.Hue.GetValue()
-	saturation := lightbulb.Saturation.GetValue()
-	brightness := lightbulb.Brightness.GetValue()
+	light := channellight.SevenChannelLight{}
+	light.SetColor(lightbulb)
 
-	log.Printf("H: %.0f, S: %.0f, B: %d\n", hue, saturation, brightness)
+	fourchLight := channellight.FourChannelLight{}
+	fourchLight.SetColor(lightbulb)
 
-	red := calculateRed(hue, saturation, brightness)
-	green := calculateGreen(hue, saturation, brightness)
-	blue := calculateBlue(hue, saturation, brightness)
-	white := calculateWhite(hue, saturation, brightness)
-	amber := calculateAmber(hue, saturation, brightness)
-	uv := calculateUv(hue, saturation, brightness)
-
-	log.Printf("R: %d, G: %d, B: %d, W: %d, A: %d, u: %d\n", red, green, blue, white, amber, uv)
 	log.Println("------------------------------------------------------------")
-}
+	log.Println("7 Channel Light")
+	log.Println("------------------------------------------------------------")
+	log.Printf("H: %.0f, S: %.0f, B: %d\n", light.GetColor().Hue, light.GetColor().Saturation, light.GetColor().Brightness)
 
-func calculateRed(hue, saturation float64, brightness int) int {
-	return 0
-}
+	log.Printf("R: %d, G: %d, B: %d, W: %d, A: %d, u: %d, b: %d\n", light.GetOutputColor().Red, light.GetOutputColor().Green, light.GetOutputColor().Blue, light.GetOutputColor().White, light.GetOutputColor().Amber, light.GetOutputColor().Uv, light.GetOutputColor().Brightness)
+	log.Println("------------------------------------------------------------")
 
-func calculateGreen(hue, saturation float64, brightness int) int {
-	return 0
-}
+	log.Println("------------------------------------------------------------")
+	log.Println("4 Channel Light")
+	log.Println("------------------------------------------------------------")
+	log.Printf("H: %.0f, S: %.0f, B: %d\n", fourchLight.GetColor().Hue, fourchLight.GetColor().Saturation, fourchLight.GetColor().Brightness)
 
-func calculateBlue(hue, saturation float64, brightness int) int {
-	return 0
-}
-
-func calculateWhite(hue, saturation float64, brightness int) int {
-	return 0
-}
-
-func calculateAmber(hue, saturation float64, brightness int) int {
-	return 0
-}
-
-func calculateUv(hue, saturation float64, brightness int) int {
-	return 0
+	log.Printf("R: %d, G: %d, B: %d, b: %d\n", fourchLight.GetOutputColor().Red, fourchLight.GetOutputColor().Green, fourchLight.GetOutputColor().Blue, fourchLight.GetOutputColor().Brightness)
+	log.Println("------------------------------------------------------------")
 }
