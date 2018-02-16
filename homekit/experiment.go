@@ -64,19 +64,39 @@ func convertColorsForLight(lightbulb *service.Lightbulb) {
 	fourchLight := channellight.FourChannelLight{}
 	fourchLight.SetColor(lightbulb)
 
+	fivechLight := channellight.FiveChannelLight{}
+	fivechLight.SetColor(lightbulb)
+
+	sixchLight := channellight.SixChannelLight{}
+	sixchLight.SetColor(lightbulb)
+
+	sevenChColor := light.GetOutputColor()
+	sixChColor := sixchLight.GetOutputColor()
+	fiveChColor := fivechLight.GetOutputColor()
+	fourChColor := fourchLight.GetOutputColor()
+
+	inColor := light.GetColor()
+
+	log.Println("------------------------------------------------------------")
+	log.Println("HSL Input")
+	log.Println("------------------------------------------------------------")
+	log.Printf("H: %.0f, S: %.0f, B: %d\n", inColor.Hue, inColor.Saturation, inColor.Brightness)
+
 	log.Println("------------------------------------------------------------")
 	log.Println("7 Channel Light")
 	log.Println("------------------------------------------------------------")
-	log.Printf("H: %.0f, S: %.0f, B: %d\n", light.GetColor().Hue, light.GetColor().Saturation, light.GetColor().Brightness)
-
-	log.Printf("R: %d, G: %d, B: %d, W: %d, A: %d, u: %d, b: %d\n", light.GetOutputColor().Red, light.GetOutputColor().Green, light.GetOutputColor().Blue, light.GetOutputColor().White, light.GetOutputColor().Amber, light.GetOutputColor().Uv, light.GetOutputColor().Brightness)
+	log.Printf("R: %d, G: %d, B: %d, W: %d, A: %d, u: %d, b: %d\n", sevenChColor.Red, sevenChColor.Green, sevenChColor.Blue, sevenChColor.White, sevenChColor.Amber, sevenChColor.Uv, sevenChColor.Brightness)
 	log.Println("------------------------------------------------------------")
-
+	log.Println("6 Channel Light")
+	log.Println("------------------------------------------------------------")
+	log.Printf("R: %d, G: %d, B: %d, W: %d, A:%d, b: %d\n", sixChColor.Red, sixChColor.Green, sixChColor.Blue, sixChColor.White, sixChColor.Amber, sixChColor.Brightness)
+	log.Println("------------------------------------------------------------")
+	log.Println("5 Channel Light")
+	log.Println("------------------------------------------------------------")
+	log.Printf("R: %d, G: %d, B: %d, W: %d, b: %d\n", fiveChColor.Red, fiveChColor.Green, fiveChColor.Blue, fiveChColor.White, fiveChColor.Brightness)
 	log.Println("------------------------------------------------------------")
 	log.Println("4 Channel Light")
 	log.Println("------------------------------------------------------------")
-	log.Printf("H: %.0f, S: %.0f, B: %d\n", fourchLight.GetColor().Hue, fourchLight.GetColor().Saturation, fourchLight.GetColor().Brightness)
-
-	log.Printf("R: %d, G: %d, B: %d, b: %d\n", fourchLight.GetOutputColor().Red, fourchLight.GetOutputColor().Green, fourchLight.GetOutputColor().Blue, fourchLight.GetOutputColor().Brightness)
+	log.Printf("R: %d, G: %d, B: %d, b: %d\n", fourChColor.Red, fourChColor.Green, fourChColor.Blue, fourChColor.Brightness)
 	log.Println("------------------------------------------------------------")
 }
