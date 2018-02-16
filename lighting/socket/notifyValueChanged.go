@@ -10,7 +10,6 @@ import (
 	"lighting/lights"
 	"lighting/store"
 	"log"
-	"sync"
 )
 
 type notifyChangePayload struct {
@@ -28,10 +27,10 @@ type notifyChangeDetails struct {
 	SeqNo     int              `json:"s"`
 }
 
-func notifyValueChanged(mu *sync.Mutex, c *websocket.Conn) store.ValueChangeCallback {
+func (this *socketConnection) notifyValueChanged() store.ValueChangeCallback {
 	return func(change store.ValuesChange) {
-		mu.Lock()
-		defer mu.Unlock()
+		this.mu.Lock()
+		defer this.mu.Unlock()
 
 		details := notifyChangePayload {
 			socketPayload: socketPayload {notifyChange},
@@ -50,7 +49,7 @@ func notifyValueChanged(mu *sync.Mutex, c *websocket.Conn) store.ValueChangeCall
 			return
 		}
 
-		err = c.WriteMessage(websocket.TextMessage, message)
+		err = this.c.WriteMessage(websocket.TextMessage, message)
 		if err != nil {
 			log.Println("Error in notify", err)
 			return

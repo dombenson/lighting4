@@ -48,7 +48,9 @@ func handleDebounces(c chan interface{}, opts Opts) {
 			t.Start()
 		case <-t.Ticks():
 			t.Stop()
-			opts.Callback(lastValue)
+			if lastValue != nil {
+				opts.Callback(lastValue)
+			}
 			lastValue = nil
 		}
 

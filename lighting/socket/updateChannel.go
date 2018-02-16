@@ -6,10 +6,9 @@ package socket
 
 import (
 	"encoding/json"
-	"github.com/gorilla/websocket"
 	"lighting/channelUpdater"
 	"lighting/lights"
-	"sync"
+	"log"
 )
 
 type updateChannelPayload struct {
@@ -27,13 +26,15 @@ type updateChannelValue struct {
 	FadeTime int              `json:"fadeTime"`
 }
 
-func processUpdateChannel(mu *sync.Mutex, c *websocket.Conn, message []byte) error {
+func (this *socketConnection) processUpdateChannel(message []byte) error {
 	var details updateChannelPayload
 
 	err := json.Unmarshal(message, &details)
 	if err != nil {
 		return err
 	}
+
+	log.Printf("[socket] (%d) 'uC' %d -> %d\n", this.id, details.Data.Channel.Id, details.Data.Channel.Value)
 
 	channelUpdater.GetChannelUpdater(details.Data.Channel.Id).UpdateValue(details.Data.Channel.Value)
 

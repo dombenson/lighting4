@@ -9,6 +9,7 @@ import (
 	"lighting/store"
 	"lighting/util/debouncer"
 	"log"
+	"reflect"
 	"time"
 )
 
@@ -44,7 +45,7 @@ func newChannelUpdater(channelNo lights.ChannelNo) *ChannelUpdater {
 		Callback: func(data interface{}) {
 			value, ok := data.(lights.Value)
 			if !ok {
-				log.Printf("[channelUpdate] (%d) type assertion failed\n", channelNo)
+				log.Printf("[channelUpdate] (%d) type assertion failed (%s)\n", channelNo, reflect.TypeOf(data))
 				return
 			}
 
@@ -53,8 +54,6 @@ func newChannelUpdater(channelNo lights.ChannelNo) *ChannelUpdater {
 				log.Printf("[channelUpdate] (%d) error updating value (%s)", channelNo, err)
 				return
 			}
-
-			log.Printf("[channelUpdate] (%d) update value to %d\n", channelNo, value)
 		},
 	})
 

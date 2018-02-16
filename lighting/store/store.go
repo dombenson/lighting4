@@ -95,7 +95,7 @@ func GetValue(channel lights.ChannelNo) lights.Value {
 }
 
 func GetLastCommissionedChannel() lights.ChannelNo {
-	return 1
+	return 512
 }
 
 func GetLastSeenSeqNo(channelNo lights.ChannelNo) int {

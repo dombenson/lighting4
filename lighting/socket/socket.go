@@ -14,6 +14,7 @@ import (
 )
 
 var upgrader = websocket.Upgrader{} // use default options
+var lastId int
 
 type socketPayload struct {
 	Type string `json:"type"`
@@ -27,28 +28,77 @@ const (
 	notifyChange  = "uC"
 )
 
-func Handler(w http.ResponseWriter, r *http.Request) {
+type socketConnection struct{
+	id            int
+	mu            *sync.Mutex
+	c             *websocket.Conn
+	unsubscribeFn func()
+}
+
+func newSocketConnection(w http.ResponseWriter, r *http.Request) (*socketConnection, error) {
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Print("upgrade:", err)
+		return nil, err
+	}
+
+	nextId := lastId + 1
+	lastId = nextId
+
+	connection := &socketConnection{
+		id: nextId,
+		mu: &sync.Mutex{},
+		c:  c,
+	}
+
+	connection.unsubscribeFn = store.Subscribe(connection.notifyValueChanged())
+
+	return connection, nil
+}
+
+func Handler(w http.ResponseWriter, r *http.Request) {
+	connection, err := newSocketConnection(w, r)
+	if err != nil {
+		log.Printf("[socket] could not open web socket connection (%s)\n", err)
 		return
 	}
-	defer c.Close()
+	defer connection.close()
 
-	mu := &sync.Mutex{}
+	log.Printf("[socket] (%d) connected from '%s'\n", connection.id, r.RemoteAddr)
 
-	unsubscribeFn := store.Subscribe(notifyValueChanged(mu, c))
-	defer unsubscribeFn()
+	connection.start()
+}
 
+func (this *socketConnection) start() {
 	for {
-		performWebsocketCycle(mu, c)
+		hasClosed := this.performWebsocketCycle()
+		if hasClosed {
+			break
+		}
 	}
 }
-func performWebsocketCycle(mu *sync.Mutex, c *websocket.Conn) {
-	mt, message, err := c.ReadMessage()
+
+func (this *socketConnection) close() error {
+	this.unsubscribeFn()
+
+	err := this.c.Close()
 	if err != nil {
-		log.Println("read:", err)
-		return
+		return err
+	}
+
+	return nil
+}
+
+func (this *socketConnection) performWebsocketCycle() bool {
+	mt, message, err := this.c.ReadMessage()
+	if err != nil {
+
+		if websocket.IsCloseError(err, websocket.CloseAbnormalClosure, websocket.CloseNormalClosure) {
+			log.Printf("[socket] (%d) closed\n", this.id)
+			return true
+		}
+
+		log.Printf("[socket] (%d) error (%s)\n", this.id, err)
+		return true
 	}
 
 	if mt == websocket.TextMessage {
@@ -57,21 +107,23 @@ func performWebsocketCycle(mu *sync.Mutex, c *websocket.Conn) {
 
 		switch details.Type {
 		case ping:
-			log.Println("ping")
+			log.Printf("[socket] (%d) 'ping'\n", this.id)
 		case channelState:
-			err = processChannelState(mu, c)
+			err = this.processChannelState()
 			if err != nil {
-				log.Println("channelState:", err)
+				log.Printf("[socket] (%d) 'channelState' processing error (%s)\n", this.id, err)
 			}
 		case trackDetails:
 			log.Println("trackDetails")
 		case updateChannel:
-			err = processUpdateChannel(mu, c, message)
+			err = this.processUpdateChannel(message)
 			if err != nil {
-				log.Println("updateChannel:", err)
+				log.Printf("[socket] (%d) 'updateChannel' processing error (%s)\n", this.id, err)
 			}
 		}
 	}
+
+	return false
 }
 
 
