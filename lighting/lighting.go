@@ -11,18 +11,16 @@ import (
 	"lighting/amqp"
 	"lighting/amqp/lightingControl"
 	"lighting/amqp/lightingUpdates"
-	"lighting/channelUpdater"
 	"lighting/socket"
 	"lighting/store"
 	"net/http"
 	"os"
-	"time"
 )
 
 func main() {
 	backend1 := logging.NewLogBackend(os.Stderr, "", 0)
 	backend1Leveled := logging.AddModuleLevel(backend1)
-	backend1Leveled.SetLevel(logging.DEBUG, "")
+	backend1Leveled.SetLevel(logging.INFO, "")
 
 	logging.SetBackend(backend1Leveled)
 
@@ -46,13 +44,10 @@ func main() {
 
 	mux := goji.NewMux()
 
-	staticFilesLocation := "/Users/chris/Development/Personal/lighting4/src/static"
-
 	mux.HandleFunc(pat.Get("/lighting/socket"), socket.Handler)
 
+	staticFilesLocation := "/Users/chris/Development/Personal/lighting4/src/static"
 	mux.Handle(pat.Get("/lighting/*"), http.FileServer(http.Dir(staticFilesLocation)))
-
-	channelUpdater.GetChannelUpdater(1).UpdateValueWithFade(10, 222, 10 * time.Second)
 
 	err = http.ListenAndServe("localhost:8000", mux)
 	if err != nil {
