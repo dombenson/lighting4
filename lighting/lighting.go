@@ -34,11 +34,6 @@ func main() {
 
 	err = store.Sync()
 
-	err = lightingControl.SetValue(1, 235)
-	if err != nil {
-		panic(err)
-	}
-
 	mux := goji.NewMux()
 
 	staticFilesLocation := "/Users/chris/Development/Personal/lighting4/src/static"

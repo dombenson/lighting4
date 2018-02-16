@@ -34,7 +34,7 @@ func processChannelState(mu *sync.Mutex, c *websocket.Conn) error {
 
 	channelStates := make([]channelStateValue, 0, lastCommissionedChannel)
 
-	for i := lights.ChannelNo(1); i < lastCommissionedChannel; i++ {
+	for i := lights.ChannelNo(1); i <= lastCommissionedChannel; i++ {
 		channelStates = append(channelStates, channelStateValue{
 			Id:           i,
 			CurrentLevel: store.GetValue(i),

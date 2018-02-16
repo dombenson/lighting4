@@ -25,13 +25,13 @@ type notifyChangeData struct {
 type notifyChangeDetails struct {
 	ChannelNo lights.ChannelNo `json:"i"`
 	Value     lights.Value     `json:"l"`
+	SeqNo     int              `json:"s"`
 }
 
 func notifyValueChanged(mu *sync.Mutex, c *websocket.Conn) store.ValueChangeCallback {
 	return func(change store.ValuesChange) {
 		mu.Lock()
 		defer mu.Unlock()
-		log.Printf("Notifying of change of %d to %d\n", change.Channel, change.Value)
 
 		details := notifyChangePayload {
 			socketPayload: socketPayload {notifyChange},
@@ -39,6 +39,7 @@ func notifyValueChanged(mu *sync.Mutex, c *websocket.Conn) store.ValueChangeCall
 				Channel: notifyChangeDetails{
 					ChannelNo: change.Channel,
 					Value:     change.Value,
+					SeqNo:     change.SeqNo,
 				},
 			},
 		}

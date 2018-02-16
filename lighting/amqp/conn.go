@@ -30,7 +30,7 @@ func Init() error {
 		return err
 	}
 
-	log.Println("AMQP initialised")
+	log.Println("[amqp] Initialised")
 
 	return nil
 }
@@ -44,7 +44,7 @@ func GetChannel() *amqp.Channel {
 
 func Close() {
 	if channel != nil {
-		log.Println("Closing AMQP channel")
+		log.Println("[amqp] Closing AMQP channel")
 		err := channel.Close()
 		if err != nil {
 			log.Println(err)
@@ -53,7 +53,7 @@ func Close() {
 	}
 
 	if conn != nil {
-		log.Println("Closing AMQP connection")
+		log.Println("[amqp] Closing AMQP connection")
 		err := conn.Close()
 		if err != nil {
 			log.Println(err)
@@ -62,5 +62,5 @@ func Close() {
 		conn = nil
 	}
 
-	log.Println("Finished closing AMQP")
+	log.Println("[amqp] Finished closing AMQP")
 }

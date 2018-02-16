@@ -7,9 +7,8 @@ package socket
 import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
+	"lighting/channelUpdater"
 	"lighting/lights"
-	"lighting/store"
-	"log"
 	"sync"
 )
 
@@ -24,7 +23,7 @@ type updateChannelData struct {
 
 type updateChannelValue struct {
 	Id       lights.ChannelNo `json:"id"`
-	Level    lights.Value     `json:"level"`
+	Value    lights.Value     `json:"level"`
 	FadeTime int              `json:"fadeTime"`
 }
 
@@ -36,12 +35,7 @@ func processUpdateChannel(mu *sync.Mutex, c *websocket.Conn, message []byte) err
 		return err
 	}
 
-	err = store.UpdateValue(details.Data.Channel.Id, details.Data.Channel.Level)
-	if err != nil {
-		return err
-	}
-
-	log.Printf("Socket set %d to %d\n", details.Data.Channel.Id, details.Data.Channel.Level)
+	channelUpdater.GetChannelUpdater(details.Data.Channel.Id).UpdateValue(details.Data.Channel.Value)
 
 	return nil
 }

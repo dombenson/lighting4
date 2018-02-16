@@ -6,17 +6,26 @@ module.factory('ChannelsService', ['$q', '$rootScope', 'LightingAPIService', 'Li
   var channelListeners = {};
 
   var currentChannelLevels = {};
+  var lastSeenSeqNos = {};
 
   LightingWebSocketService.attachSocketListener('uC', function(data){
     var channelId = data.c.i;
     var channelLevel = data.c.l;
+    var seqNo = data.c.s;
+    var lastSeenSeqNo = 0;
 
-    $rootScope.$apply(function() {
-      notifyChannelLister(channelId, channelLevel);
-    });
+      if (lastSeenSeqNo.hasOwnProperty(channelId)) {
+        lastSeenSeqNo = lastSeenSeqNos[channelId];
+      }
+
+    if (seqNo > lastSeenSeqNo) {
+      $rootScope.$apply(function() {
+        notifyChannelLister(channelId, channelLevel, seqNo);
+      });
+    }
   });
 
-  function notifyChannelLister(channelId, channelLevel) {
+  function notifyChannelLister(channelId, channelLevel, seqNo) {
     currentChannelLevels[channelId] = channelLevel;
 
     if(channelListeners.hasOwnProperty(channelId)) {

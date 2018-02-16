@@ -21,6 +21,7 @@ var started bool
 type valueSetData struct {
 	Channel lights.ChannelNo `json:"c"`
 	Value   lights.Value     `json:"v"`
+	SeqNo   int              `json:"s"`
 }
 
 type valueSetPayload struct {
@@ -80,26 +81,33 @@ func Start() error {
 
 	go func() {
 		for d := range msgs {
-			details := &valueSetPayload{
-			}
+			details := &valueSetPayload{}
+
 			err := json.Unmarshal(d.Body, &details)
 			if err != nil {
 				log.Println(err)
-			}
-
-			switch details.Event {
-			case "vs", "value-set", "vr", "value-requested":
-				for _, v := range details.Data {
-					store.SetValue(v.Channel, v.Value)
+			} else {
+				switch details.Event {
+				case "vs", "value-set", "vr", "value-requested":
+					for _, v := range details.Data {
+						if v.SeqNo > store.GetLastSeenSeqNo(v.Channel) {
+							log.Printf("[lighting.updates] Set %d to %d (%d)\n", v.Channel, v.Value, v.SeqNo)
+							store.SetLastSeenSeqNo(v.Channel, v.SeqNo)
+							store.SetValue(v.Channel, v.Value)
+						}
+					}
+				case "hr", "hardware-reset":
+					log.Println("[lighting.updates] Hardware Reset")
+					store.Reset()
+				default:
+					log.Println("[lighting.updates] Unsupported message", details)
 				}
-			default:
-				log.Println("Unsupported message", details)
 			}
 		}
 	}()
 
 	started = true
-	log.Println("Lighting Updates AMQP started")
+	log.Println("[lighting.updates] AMQP started")
 
 	return nil
 }

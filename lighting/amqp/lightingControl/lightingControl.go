@@ -54,7 +54,7 @@ func Start() error {
 		return err
 	}
 
-	log.Println("Lighting Control AMQP started")
+	log.Println("[lighting.control] AMQP started")
 
 	started = true
 	return nil
