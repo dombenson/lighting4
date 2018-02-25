@@ -11,6 +11,7 @@ import (
 	"lighting/amqp"
 	"lighting/amqp/lightingControl"
 	"lighting/amqp/lightingUpdates"
+	"lighting/sequencer"
 	"lighting/socket"
 	"lighting/store"
 	"net/http"
@@ -41,6 +42,15 @@ func main() {
 	}
 
 	err = store.Sync()
+	if err != nil {
+		panic(err)
+	}
+
+	err = sequencer.Start()
+	if err != nil {
+		panic(err)
+	}
+	defer sequencer.Stop()
 
 	mux := goji.NewMux()
 

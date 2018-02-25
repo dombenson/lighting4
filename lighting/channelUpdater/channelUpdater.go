@@ -71,11 +71,7 @@ func (this *ChannelUpdater) UpdateValueWithFade(startValue, endValue lights.Valu
 		return
 	}
 
-	sizeOfChange := endValue - startValue
-
-	stepDuration := time.Duration(int64(duration) / int64(sizeOfChange))
-
-	log.Info("stepDuration", stepDuration)
+	stepDuration := calculateStepDuration(startValue, endValue, duration)
 
 	ticker := time.NewTicker(stepDuration)
 
@@ -96,6 +92,14 @@ func (this *ChannelUpdater) UpdateValueWithFade(startValue, endValue lights.Valu
 			}
 		}
 	}()
+}
+
+func calculateStepDuration(startValue, endValue lights.Value, duration time.Duration) time.Duration {
+	if startValue < endValue {
+		return time.Duration(int64(duration) / int64(endValue - startValue))
+	} else {
+		return time.Duration(int64(duration) / int64(startValue - endValue))
+	}
 }
 
 func (this *ChannelUpdater) UpdateValue(value lights.Value) {
