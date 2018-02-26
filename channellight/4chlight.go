@@ -45,13 +45,26 @@ func (this *FourChannelColor) scaleSat(saturation float64, base int) int {
 }
 
 func (this *FourChannelColor) calculateRed(color HSLColor) {
-	this.Red = this.scaleSat(color.Saturation, multiStop(color.Hue, 120, 240, 300, 60))
+	this.Red = this.scaleSat(color.Saturation, this.calculateBaseRed(color))
 }
 
 func (this *FourChannelColor) calculateGreen(color HSLColor) {
-	this.Green = this.scaleSat(color.Saturation, multiStop(color.Hue, 240, 0, 90, 180))
+	this.Green = this.scaleSat(color.Saturation, this.calculateBaseGreen(color))
 }
 
 func (this *FourChannelColor) calculateBlue(color HSLColor) {
-	this.Blue = this.scaleSat(color.Saturation, multiStop(color.Hue, 0, 120, 180, 300))
+	this.Blue = this.scaleSat(color.Saturation, this.calculateBaseBlue(color))
+}
+
+
+func (this *FourChannelColor) calculateBaseRed(color HSLColor) int {
+	return multiStop(color.Hue, 120, 240, 300, 60)
+}
+
+func (this *FourChannelColor) calculateBaseGreen(color HSLColor) int {
+	return multiStop(color.Hue, 240, 0, 90, 180)
+}
+
+func (this *FourChannelColor) calculateBaseBlue(color HSLColor) int {
+	return multiStop(color.Hue, 0, 120, 180, 300)
 }
