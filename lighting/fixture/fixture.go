@@ -88,8 +88,6 @@ func GetFixture(fixtureKey string) (fixtureImpl.FixtureImpl, error) {
 	}
 
 	switch myBaseFixture.Type.TypeKey {
-	case "rgb":
-		return fixtureImpl.NewGenericRGB(myBaseFixture), nil
 	case "hex":
 		return fixtureImpl.NewChauvetHex(myBaseFixture), nil
 	default:

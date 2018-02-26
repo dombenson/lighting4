@@ -11,12 +11,13 @@ type ChauvetHex struct {
 
 func NewChauvetHex(fixture FixtureImpl) *ChauvetHex {
 	rgbFixture := ChauvetHex {
-		FixtureImpl:      fixture,
-		baseRGBFixture:   &baseRGBFixture{
-			redChannel:   fixture.GetFirstChannel() + 1,
-			greenChannel: fixture.GetFirstChannel() + 2,
-			blueChannel:  fixture.GetFirstChannel() + 3,
-		},
+		FixtureImpl:    fixture,
+		baseRGBFixture: newBaseRGBFixture(fixture.GetName(), colorFixtureChannels{
+			fader: fixture.GetFirstChannel(),
+			red:   fixture.GetFirstChannel() + 1,
+			green: fixture.GetFirstChannel() + 2,
+			blue:  fixture.GetFirstChannel() + 3,
+		}),
 	}
 
 	return &rgbFixture

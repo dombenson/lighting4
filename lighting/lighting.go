@@ -11,6 +11,8 @@ import (
 	"lighting/amqp"
 	"lighting/amqp/lightingControl"
 	"lighting/amqp/lightingUpdates"
+	"lighting/fixture"
+	"lighting/homekit"
 	"lighting/sequencer"
 	"lighting/socket"
 	"lighting/store"
@@ -45,6 +47,15 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	fixture1, err := fixture.GetRGBFixture("rear-left")
+	if err != nil {
+		panic(err)
+	}
+	homekit.RegisterFixture(fixture1.GetName(), fixture1.GetHomeKitAccessory())
+
+	homekit.Start("DMX-Lights", "06592309")
+	defer homekit.Stop()
 
 	err = sequencer.Start()
 	if err != nil {
