@@ -25,14 +25,14 @@ type setValueData struct {
 }
 
 type setValuePayload struct {
-	payload.Payload
+	payload.LightingPayload
 	Data setValueData `json:"data"`
 }
 
 type requestValuesData []lights.ChannelNo
 
 type requestValuesPayload struct {
-	payload.Payload
+	payload.LightingPayload
 	Data requestValuesData `json:"data"`
 }
 
@@ -62,7 +62,7 @@ func Start() error {
 	return nil
 }
 
-func SetValue(channelNo lights.ChannelNo, value lights.Value) error {
+func SetValue(address lights.Address, value lights.Value) error {
 	if !started {
 		panic("lighting.control exchange not started")
 	}
@@ -70,9 +70,9 @@ func SetValue(channelNo lights.ChannelNo, value lights.Value) error {
 	channel := amqp.GetChannel()
 
 	setData := setValuePayload{
-		Payload: payload.Payload{"sv"},
+		LightingPayload: payload.NewLightingPayload("sv", address.Universe),
 		Data: setValueData {
-			Channel: channelNo,
+			Channel: address.ChannelNo,
 			Value:   value,
 		},
 	}
@@ -93,7 +93,7 @@ func SetValue(channelNo lights.ChannelNo, value lights.Value) error {
 	return nil
 }
 
-func RequestValues() error {
+func RequestValues(universe int) error {
 	if !started {
 		panic("lighting.control exchange not started")
 	}
@@ -101,7 +101,7 @@ func RequestValues() error {
 	channel := amqp.GetChannel()
 
 	requestData := requestValuesPayload{
-		Payload: payload.Payload{"rv"},
+		LightingPayload: payload.NewLightingPayload("rv", universe),
 	}
 
 	jsonBytes, err := json.Marshal(requestData)

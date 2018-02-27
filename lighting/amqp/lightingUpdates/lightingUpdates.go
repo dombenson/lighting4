@@ -27,7 +27,7 @@ type valueSetData struct {
 }
 
 type valueSetPayload struct {
-	payload.Payload
+	payload.LightingPayload
 	Data []valueSetData `json:"data"`
 }
 
@@ -92,15 +92,17 @@ func Start() error {
 				switch details.Event {
 				case "vs", "value-set", "vr", "value-requested":
 					for _, v := range details.Data {
-						if v.SeqNo > store.GetLastSeenHardwareSeqNo(v.Channel) {
-							log.Debugf("Set %d to %d (%d)", v.Channel, v.Value, v.SeqNo)
-							store.SetLastSeenHardwareSeqNo(v.Channel, v.SeqNo)
-							store.SetValue(v.Channel, v.Value)
+						address := lights.NewAddress(details.Universe, v.Channel)
+
+						if v.SeqNo > store.GetLastSeenHardwareSeqNo(address) {
+							log.Debugf("Set %d:%d to %d (%d)", address.Universe, address.ChannelNo, v.Value, v.SeqNo)
+							store.SetLastSeenHardwareSeqNo(address, v.SeqNo)
+							store.SetValue(address, v.Value)
 						}
 					}
 				case "hr", "hardware-reset":
-					log.Info("Hardware Reset")
-					store.Reset()
+					log.Infof("Hardware Reset (%d)", details.Universe)
+					store.Reset(details.Universe)
 				default:
 					log.Error("Unsupported message", details)
 				}

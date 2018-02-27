@@ -15,7 +15,7 @@ type FixtureImpl interface {
 	GetName() string
 	GetDescription() string
 	GetType() *fixtureType.FixtureType
-	GetFirstChannel() lights.ChannelNo
+	GetFirstChannel() lights.Address
 }
 
 type RGBFixtureImpl interface {

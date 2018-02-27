@@ -15,31 +15,27 @@ import (
 
 var log = logging.MustGetLogger("channelUpdater")
 
-var channelUpdaters map[lights.ChannelNo]*ChannelUpdater
-
-func init() {
-	channelUpdaters = make(map[lights.ChannelNo]*ChannelUpdater)
-}
+var channelUpdaters = make(map[lights.Address]*ChannelUpdater)
 
 type ChannelUpdater struct {
-	channelNo        lights.ChannelNo
+	address          lights.Address
 	channelDebouncer *debouncer.Debouncer
 }
 
-func GetChannelUpdater(channelNo lights.ChannelNo) *ChannelUpdater {
-	updater, ok := channelUpdaters[channelNo]
+func GetChannelUpdater(address lights.Address) *ChannelUpdater {
+	updater, ok := channelUpdaters[address]
 
 	if updater == nil || !ok {
-		updater = newChannelUpdater(channelNo)
-		channelUpdaters[channelNo] = updater
+		updater = newChannelUpdater(address)
+		channelUpdaters[address] = updater
 	}
 
 	return updater
 }
 
-func newChannelUpdater(channelNo lights.ChannelNo) *ChannelUpdater {
+func newChannelUpdater(address lights.Address) *ChannelUpdater {
 	updater := ChannelUpdater{
-		channelNo: channelNo,
+		address: lights.Address{},
 	}
 
 	channelDebouncer := debouncer.New(debouncer.Opts{
@@ -47,13 +43,13 @@ func newChannelUpdater(channelNo lights.ChannelNo) *ChannelUpdater {
 		Callback: func(data interface{}) {
 			value, ok := data.(lights.Value)
 			if !ok {
-				log.Errorf("(%d) type assertion failed (%s)", channelNo, reflect.TypeOf(data))
+				log.Errorf("(%d:%d) type assertion failed (%s)", address.Universe, address.ChannelNo, reflect.TypeOf(data))
 				return
 			}
 
-			err := store.UpdateValue(channelNo, value)
+			err := store.UpdateValue(address, value)
 			if err != nil {
-				log.Errorf("(%d) error updating value (%s)", channelNo, err)
+				log.Errorf("(%d:%d) error updating value (%s)", address.Universe, address.ChannelNo, err)
 				return
 			}
 		},

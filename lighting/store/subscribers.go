@@ -12,7 +12,7 @@ import (
 var subscribers map[uuid.UUID]ValueChangeCallback
 
 type ValuesChange struct {
-	Channel lights.ChannelNo
+	Channel lights.Address
 	Value   lights.Value
 	SeqNo   int
 }
@@ -36,7 +36,7 @@ func Subscribe(callback ValueChangeCallback) func() {
 	}
 }
 
-func notify(channel lights.ChannelNo, value lights.Value, seqNo int) {
+func notify(channel lights.Address, value lights.Value, seqNo int) {
 	for _, callback := range subscribers {
 		callback(ValuesChange {
 			Channel: channel,

@@ -14,27 +14,29 @@ import (
 var log = logging.MustGetLogger("store")
 
 var mu *sync.RWMutex
-var values map[lights.ChannelNo]lights.Value
-var valueSequences map[lights.ChannelNo]int
-var lastSeenHardwareSeqNos map[lights.ChannelNo]int
+var values map[lights.Address]lights.Value
+var valueSequences map[lights.Address]int
+var lastSeenHardwareSeqNos map[lights.Address]int
 
 func init() {
-	values = make(map[lights.ChannelNo]lights.Value)
-	valueSequences = make(map[lights.ChannelNo]int)
-	lastSeenHardwareSeqNos = make(map[lights.ChannelNo]int)
+	values = make(map[lights.Address]lights.Value)
+	valueSequences = make(map[lights.Address]int)
+	lastSeenHardwareSeqNos = make(map[lights.Address]int)
 	mu = &sync.RWMutex{}
 }
 
 func Sync() error {
-	err := lightingControl.RequestValues()
-	if err != nil {
-		return err
+	for _, universe := range GetUniverses() {
+		err := lightingControl.RequestValues(universe)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
-func UpdateValue(channel lights.ChannelNo, value lights.Value) error {
+func UpdateValue(channel lights.Address, value lights.Value) error {
 	hasChanged := SetValue(channel, value)
 
 	if !hasChanged {
@@ -49,7 +51,7 @@ func UpdateValue(channel lights.ChannelNo, value lights.Value) error {
 	return nil
 }
 
-func SetValue(channel lights.ChannelNo, value lights.Value) bool {
+func SetValue(channel lights.Address, value lights.Value) bool {
 	hasChanged, seqNo := doSetValue(channel, value)
 
 	if hasChanged {
@@ -59,7 +61,7 @@ func SetValue(channel lights.ChannelNo, value lights.Value) bool {
 	return hasChanged
 }
 
-func doSetValue(channel lights.ChannelNo, value lights.Value) (bool, int) {
+func doSetValue(channel lights.Address, value lights.Value) (bool, int) {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -75,53 +77,58 @@ func doSetValue(channel lights.ChannelNo, value lights.Value) (bool, int) {
 	return false, 0
 }
 
-func Reset() {
+func Reset(universe int) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	lastSeenHardwareSeqNos = make(map[lights.ChannelNo]int)
+	lastSeenHardwareSeqNos = make(map[lights.Address]int)
 
-	for channel := lights.ChannelNo(1); channel <= GetLastCommissionedChannel(); channel++ {
-		err := lightingControl.SetValue(channel, values[channel])
+	for channel := lights.ChannelNo(1); channel <= GetLastCommissionedChannel(universe); channel++ {
+		address := lights.NewAddress(universe, channel)
+		err := lightingControl.SetValue(address, values[address])
 		if err != nil {
 			log.Error("Unable to transmit existing value", err)
 		}
 	}
 }
 
-func GetValue(channel lights.ChannelNo) lights.Value {
+func GetValue(channel lights.Address) lights.Value {
 	mu.RLock()
 	defer mu.RUnlock()
 
 	return values[channel]
 }
 
-func GetValueAndSeqNo(channel lights.ChannelNo) (lights.Value, int) {
+func GetValueAndSeqNo(channel lights.Address) (lights.Value, int) {
 	mu.RLock()
 	defer mu.RUnlock()
 
 	return values[channel], valueSequences[channel]
 }
 
-func GetSeqNo(channel lights.ChannelNo) int {
+func GetSeqNo(channel lights.Address) int {
 	mu.RLock()
 	defer mu.RUnlock()
 
 	return valueSequences[channel]
 }
 
-func GetLastCommissionedChannel() lights.ChannelNo {
+func GetUniverses() []int {
+	return []int{1, 2}
+}
+
+func GetLastCommissionedChannel(universe int) lights.ChannelNo {
 	return 512
 }
 
-func GetLastSeenHardwareSeqNo(channelNo lights.ChannelNo) int {
+func GetLastSeenHardwareSeqNo(channelNo lights.Address) int {
 	mu.RLock()
 	defer mu.RUnlock()
 
 	return lastSeenHardwareSeqNos[channelNo]
 }
 
-func SetLastSeenHardwareSeqNo(channelNo lights.ChannelNo, seqNo int) {
+func SetLastSeenHardwareSeqNo(channelNo lights.Address, seqNo int) {
 	mu.Lock()
 	defer mu.Unlock()
 

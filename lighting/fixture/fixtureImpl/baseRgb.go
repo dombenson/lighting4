@@ -17,8 +17,6 @@ import (
 
 var log = logging.MustGetLogger("baseRGBFixture")
 
-const channelNotSpecified lights.ChannelNo = 0
-
 type baseRGBFixture struct {
 	colorFixtureChannels colorFixtureChannels
 	lightbulb            *hkService.Lightbulb
@@ -27,13 +25,13 @@ type baseRGBFixture struct {
 }
 
 type colorFixtureChannels struct {
-	fader lights.ChannelNo
-	red   lights.ChannelNo
-	green lights.ChannelNo
-	blue  lights.ChannelNo
-	white lights.ChannelNo
-	amber lights.ChannelNo
-	uv    lights.ChannelNo
+	fader    *lights.Address
+	red      *lights.Address
+	green    *lights.Address
+	blue     *lights.Address
+	white    *lights.Address
+	amber    *lights.Address
+	uv       *lights.Address
 }
 
 func newBaseRGBFixture(name string, channels colorFixtureChannels) *baseRGBFixture {
@@ -44,10 +42,10 @@ func newBaseRGBFixture(name string, channels colorFixtureChannels) *baseRGBFixtu
 
 	var lightModel channellight.ChannelLight
 
-	if channels.red != channelNotSpecified &&
-	   channels.green != channelNotSpecified &&
-	   channels.blue != channelNotSpecified {
-		if channels.white != channelNotSpecified {
+	if channels.red != nil &&
+	   channels.green != nil &&
+	   channels.blue != nil {
+		if channels.white != nil {
 			lightModel = &channellight.SevenChannelLight{}
 		} else {
 			lightModel = &channellight.FourChannelLight{}
@@ -112,28 +110,28 @@ func (this *baseRGBFixture) syncColorsForLight() {
 	}
 }
 
-func (this *baseRGBFixture) doGetValue(description string, channel lights.ChannelNo) lights.Value {
-	if channel == channelNotSpecified {
+func (this *baseRGBFixture) doGetValue(description string, channel *lights.Address) lights.Value {
+	if channel == nil {
 		log.Infof("(%s) Requested '%s' channel when not implemented", this.accessory.Info.Name, description)
 		return 0
 	}
-	return store.GetValue(channel)
+	return store.GetValue(*channel)
 }
 
 func (this *baseRGBFixture) IsFaderAvailable() bool {
-	return this.colorFixtureChannels.fader != channelNotSpecified
+	return this.colorFixtureChannels.fader != nil
 }
 
 func (this *baseRGBFixture) IsWhiteAvailable() bool {
-	return this.colorFixtureChannels.white != channelNotSpecified
+	return this.colorFixtureChannels.white != nil
 }
 
 func (this *baseRGBFixture) IsAmberAvailable() bool {
-	return this.colorFixtureChannels.amber != channelNotSpecified
+	return this.colorFixtureChannels.amber != nil
 }
 
 func (this *baseRGBFixture) IsUvAvailable() bool {
-	return this.colorFixtureChannels.uv != channelNotSpecified
+	return this.colorFixtureChannels.uv != nil
 }
 
 func (this *baseRGBFixture) GetFaderValue() lights.Value {
@@ -164,13 +162,13 @@ func (this *baseRGBFixture) GetUvValue() lights.Value {
 	return this.doGetValue("uv", this.colorFixtureChannels.uv)
 }
 
-func (this *baseRGBFixture) doSetValue(description string, channel lights.ChannelNo, value lights.Value, fade time.Duration) {
-	if channel == channelNotSpecified {
+func (this *baseRGBFixture) doSetValue(description string, channel *lights.Address, value lights.Value, fade time.Duration) {
+	if channel == nil {
 		log.Errorf("(%s) Attempted to set '%s' channel when not implemented", this.accessory.Info.Name, description)
 		return
 	}
 
-	channelUpdater.GetChannelUpdater(channel).UpdateValueWithFade(this.doGetValue(description, channel), value, fade)
+	channelUpdater.GetChannelUpdater(*channel).UpdateValueWithFade(this.doGetValue(description, channel), value, fade)
 }
 
 func (this *baseRGBFixture) SetFaderValue(value lights.Value, fade time.Duration) {
@@ -213,7 +211,7 @@ func (this *baseRGBFixture) GetHomeKitAccessory() *hkAccessory.Accessory {
 
 func (this *baseRGBFixture) ValueChange(change store.ValuesChange) {
 	switch change.Channel {
-	case this.colorFixtureChannels.fader, this.colorFixtureChannels.red, this.colorFixtureChannels.green, this.colorFixtureChannels.blue, this.colorFixtureChannels.white, this.colorFixtureChannels.amber, this.colorFixtureChannels.uv:
+	case *this.colorFixtureChannels.fader, *this.colorFixtureChannels.red, *this.colorFixtureChannels.green, *this.colorFixtureChannels.blue, *this.colorFixtureChannels.white, *this.colorFixtureChannels.amber, *this.colorFixtureChannels.uv:
 		log.Infof("(%s) Colour channel %d changed to %d (HomeKit update would happen here)", this.accessory.Info.Name.Value, change.Channel, change.Value)
 	}
 }

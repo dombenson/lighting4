@@ -22,23 +22,28 @@ type channelStateData struct {
 
 type channelStateValue struct {
 	Id           lights.ChannelNo `json:"id"`
+	Universe     int              `json:"universe"`
 	CurrentLevel lights.Value     `json:"currentLevel"`
 	SeqNo        int              `json:"seqNo"`
 }
 
 func (this *socketConnection) processChannelState() error {
-	lastCommissionedChannel := store.GetLastCommissionedChannel()
+	universes := store.GetUniverses()
 
-	channelStates := make([]channelStateValue, 0, lastCommissionedChannel)
+	var channelStates []channelStateValue
 
-	for i := lights.ChannelNo(1); i <= lastCommissionedChannel; i++ {
-		currentValue, currentSeqNo := store.GetValueAndSeqNo(i)
+	for _, universe := range universes {
+		lastCommissionedChannel := store.GetLastCommissionedChannel(universe)
+		for channel := lights.ChannelNo(1); channel <= lastCommissionedChannel; channel++ {
+			currentValue, currentSeqNo := store.GetValueAndSeqNo(lights.NewAddress(universe, channel))
 
-		channelStates = append(channelStates, channelStateValue{
-			Id:           i,
-			CurrentLevel: currentValue,
-			SeqNo:        currentSeqNo,
-		})
+			channelStates = append(channelStates, channelStateValue{
+				Id:           channel,
+				Universe:     universe,
+				CurrentLevel: currentValue,
+				SeqNo:        currentSeqNo,
+			})
+		}
 	}
 
 	this.mu.Lock()

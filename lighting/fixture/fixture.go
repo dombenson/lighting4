@@ -24,7 +24,7 @@ type baseFixture struct {
 	Type         *fixtureType.FixtureType
 	Name         string                   `json:"name"`
 	Description  string                   `json:"description"`
-	FirstChannel lights.ChannelNo         `json:"firstChannel"`
+	FirstChannel lights.Address           `json:"firstChannel"`
 }
 
 func (this *baseFixture) GetType() *fixtureType.FixtureType {
@@ -39,7 +39,7 @@ func (this *baseFixture) GetDescription() string {
 	return this.Description
 }
 
-func (this *baseFixture) GetFirstChannel() lights.ChannelNo {
+func (this *baseFixture) GetFirstChannel() lights.Address {
 	return this.FirstChannel
 }
 
@@ -48,16 +48,22 @@ func (this *baseFixture) UnmarshalJSON(data []byte) error {
 		Name         *string           `json:"name"`
 		Description  *string           `json:"description"`
 		FirstChannel *lights.ChannelNo `json:"firstChannel"`
+		Universe     *int              `json:"universe"`
 		Type         string            `json:"type"`
 	}{
 		Name:         &this.Name,
 		Description:  &this.Description,
-		FirstChannel: &this.FirstChannel,
+		FirstChannel: &this.FirstChannel.ChannelNo,
+		Universe:     &this.FirstChannel.Universe,
 	}
 
 	err := json.Unmarshal(data, &temp)
 	if err != nil {
 		return err
+	}
+
+	if this.FirstChannel.Universe == 0 {
+		this.FirstChannel.Universe = 1
 	}
 
 	typeOfFixture, err := fixtureType.GetFixtureType(temp.Type)

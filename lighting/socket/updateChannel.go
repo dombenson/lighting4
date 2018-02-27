@@ -22,6 +22,7 @@ type updateChannelData struct {
 
 type updateChannelValue struct {
 	Id       lights.ChannelNo `json:"id"`
+	Universe int              `json:"universe"`
 	Value    lights.Value     `json:"level"`
 	SeqNo    int              `json:"seqNo"`
 	FadeTime int              `json:"fadeTime"`
@@ -35,13 +36,15 @@ func (this *socketConnection) processUpdateChannel(message []byte) error {
 		return err
 	}
 
-	currentValue, currentSeqNo := store.GetValueAndSeqNo(details.Data.Channel.Id)
+	address := lights.NewAddress(details.Data.Channel.Universe, details.Data.Channel.Id)
+
+	currentValue, currentSeqNo := store.GetValueAndSeqNo(address)
 
 	if currentValue != details.Data.Channel.Value && currentSeqNo <= details.Data.Channel.SeqNo {
-		log.Infof("(%d) 'updateChannel' %d -> %d (%d)", this.id, details.Data.Channel.Id, details.Data.Channel.Value, details.Data.Channel.SeqNo)
-		channelUpdater.GetChannelUpdater(details.Data.Channel.Id).UpdateValue(details.Data.Channel.Value)
+		log.Infof("(%d) 'updateChannel' %d:%d -> %d (%d)", this.id, address.Universe, address.ChannelNo, details.Data.Channel.Value, details.Data.Channel.SeqNo)
+		channelUpdater.GetChannelUpdater(address).UpdateValue(details.Data.Channel.Value)
 	} else {
-		log.Debugf("(%d) 'updateChannel' [ignored] %d -> %d (%d)", this.id, details.Data.Channel.Id, details.Data.Channel.Value, details.Data.Channel.SeqNo)
+		log.Debugf("(%d) 'updateChannel' [ignored] %d:%d -> %d (%d)", this.id, address.Universe, address.ChannelNo, details.Data.Channel.Value, details.Data.Channel.SeqNo)
 	}
 
 	return nil
