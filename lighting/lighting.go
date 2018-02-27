@@ -13,7 +13,6 @@ import (
 	"lighting/amqp/lightingUpdates"
 	"lighting/fixture"
 	"lighting/homekit"
-	"lighting/sequencer"
 	"lighting/socket"
 	"lighting/store"
 	"net/http"
@@ -57,11 +56,11 @@ func main() {
 	homekit.Start("DMX-Lights", "06592309")
 	defer homekit.Stop()
 
-	err = sequencer.Start()
-	if err != nil {
-		panic(err)
-	}
-	defer sequencer.Stop()
+	//err = sequencer.Start()
+	//if err != nil {
+	//	panic(err)
+	//}
+	//defer sequencer.Stop()
 
 	mux := goji.NewMux()
 

@@ -17,6 +17,9 @@ func NewChauvetHex(fixture FixtureImpl) *ChauvetHex {
 			red:   fixture.GetFirstChannel() + 1,
 			green: fixture.GetFirstChannel() + 2,
 			blue:  fixture.GetFirstChannel() + 3,
+			amber: fixture.GetFirstChannel() + 4,
+			white: fixture.GetFirstChannel() + 5,
+			uv:    fixture.GetFirstChannel() + 6,
 		}),
 	}
 

@@ -65,6 +65,11 @@ func newChannelUpdater(channelNo lights.ChannelNo) *ChannelUpdater {
 }
 
 func (this *ChannelUpdater) UpdateValueWithFade(startValue, endValue lights.Value, duration time.Duration) {
+	if duration == 0 {
+		this.UpdateValue(endValue)
+		return
+	}
+
 	this.UpdateValue(startValue)
 
 	if startValue == endValue {
