@@ -1,1 +1,6 @@
-{"fixtures": ["rear-left", "rear-right", "tv-left", "tv-right", "slender-beam"]}
+{
+	"fixtures": {
+		"1": ["rear-left", "rear-right"],
+		"2": ["tv-left", "tv-right", "slender-beam"]
+	}
+}

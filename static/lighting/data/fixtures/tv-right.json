@@ -2,5 +2,6 @@
   "name": "tv-right",
   "description": "TV Right",
   "firstChannel": 49,
-  "type": "hex"
+  "type": "hex",
+  "universe": 2
 }

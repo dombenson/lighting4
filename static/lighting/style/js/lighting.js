@@ -1,110 +1,131 @@
 var lightingApp = angular.module('lightingApp', ['ChannelSliderDirective', 'PatternSelectorDirective', 'ChannelGroupDirective', 'ColourSelectorDirective', 'ModeSelectorDirective', 'ModeToggleDirective', 'LightingWebSocketService', 'ChannelsService', 'FixtureService', 'FixtureDirective', 'SequenceService', 'SequenceDirective', 'SequenceStepDirective', 'TrackService', 'PlaybackDetailsDirective']);
 
 lightingApp.controller('WebSocketManagerController', function($scope, LightingWebSocketService, ChannelsService, FixtureService, SequenceService) {
-  $scope.currentView = 'channels';
+	$scope.currentView = 'channels';
+	$scope.currentUniverse = 0;
 
-  $scope.currentWebSocketStatus = 'striped';
-  $scope.canReconnect = false;
-  $scope.connected = false;
+	$scope.currentWebSocketStatus = 'striped';
+	$scope.canReconnect = false;
+	$scope.connected = false;
 
-  $scope.channels = [];
-  $scope.channelsInPages = [];
-  $scope.fixtures = [];
-  $scope.sequences = [];
+	$scope.universes = {};
+	$scope.sequences = [];
 
-  $scope.reconnect = function(){
-    LightingWebSocketService.reconnect();
-    $scope.canReconnect = false;
-  };
+	$scope.reconnect = function(){
+		LightingWebSocketService.reconnect();
+		$scope.canReconnect = false;
+	};
 
-  $scope.blackout = function() {
-    LightingWebSocketService.sendRequest('blackout');
-  };
-  $scope.unblackout = function() {
-    LightingWebSocketService.sendRequest('unblackout');
-  };
+	$scope.blackout = function() {
+		LightingWebSocketService.sendRequest('blackout');
+	};
+	$scope.unblackout = function() {
+		LightingWebSocketService.sendRequest('unblackout');
+	};
 
-  $scope.sequenceBeat = function() {
-    SequenceService.sequenceBeat();
-  };
+	$scope.sequenceBeat = function() {
+		SequenceService.sequenceBeat();
+	};
 
-  LightingWebSocketService.attachConnectionListener(function(status) {
-    if (status == 'open') {
-      $scope.currentWebSocketStatus = 'successful';
-      $scope.canReconnect = false;
-      $scope.connected = true;
-      loadInitialState();
-    } else if (status == 'close' || status == 'error') {
-      $scope.currentWebSocketStatus = 'failed';
-      $scope.canReconnect = true;
-      $scope.connected = false;
-      $scope.channels = [];
-      $scope.fixtures = [];
-      $scope.channelsInPages = [];
-    } else {
-      $scope.currentWebSocketStatus = 'striped';
-      $scope.canReconnect = false;
-      $scope.connected = false;
-      $scope.channels = [];
-      $scope.fixtures = [];
-      $scope.channelsInPages = [];
-    }
+	LightingWebSocketService.attachConnectionListener(function(status) {
+		if (status == 'open') {
+			$scope.currentWebSocketStatus = 'successful';
+			$scope.canReconnect = false;
+			$scope.connected = true;
+			loadInitialState();
+		} else if (status == 'close' || status == 'error') {
+			$scope.currentWebSocketStatus = 'failed';
+			$scope.canReconnect = true;
+			$scope.connected = false;
+			$scope.universes = {};
+		} else {
+			$scope.currentWebSocketStatus = 'striped';
+			$scope.canReconnect = false;
+			$scope.connected = false;
+			$scope.universes = {};
+		}
 
-  });
+	});
 
-  function loadInitialState() {
-    ChannelsService.getChannels(true).then(
-      function(channels) {
-        $scope.channels = channels;
-        $scope.channelsInPages = channelsIntoPages(channels, 8);
+	function loadInitialState() {
+		ChannelsService.getChannels(true).then(
+			function(channels) {
+				$scope.universes = channelsIntoUniverses(channels);
 
-        FixtureService.getFixtureList(true).then(
-          function(fixtures) {
-            $scope.fixtures = fixtures;
-          }, function(error) {
-            console.error('Could not load fixtures', error);
-          }
-        );
+				if (!$scope.currentUniverse && $scope.universes) {
+					$scope.currentUniverse = $scope.universes[Object.keys($scope.universes)[0]].number;
+				}
 
-        SequenceService.getSequenceList(true).then(
-          function(sequences) {
-            $scope.sequences = sequences;
-          }, function(error) {
-            console.error('Could not load sequences', error);
-          }
-        );
-      }, function(error) {
-        console.error('Could not load channels', error);
-      }
-    );
-  }
+				FixtureService.getFixtureList(true).then(
+					function(fixtures) {
+						fixturesIntoUniverses(fixtures, $scope.universes);
+					}, function(error) {
+						console.error('Could not load fixtures', error);
+					}
+				);
+			}, function(error) {
+				console.error('Could not load channels', error);
+			}
+		);
+	}
 
-  function channelsIntoPages(channels, channelsPerPage) {
-    var fullPageCount = Math.floor(channels.length / channelsPerPage);
-    var finalPageChannels = channels.length % channelsPerPage;
+	function fixturesIntoUniverses(fixtures, universes) {
+		for (var universeKey in fixtures) {
+			console.log(universeKey, universes);
+			universes[universeKey].fixtures = fixtures[universeKey];
+		}
+	}
 
-    var pages = [];
+	function channelsIntoUniverses(channels) {
+		var universes = {};
 
-    for (var i = 0; i < fullPageCount; i++) {
-      var page = [];
+		for (var i = 0; i < channels.length; i++) {
+			var channel = channels[i];
 
-      for (var j = 0; j < channelsPerPage; j++) {
-        var channel = channels[i * channelsPerPage + j];
-        page.push(channel);
-      }
+			if (!universes.hasOwnProperty(channel.universe)) {
+				universes[channel.universe] = {
+					number: channel.universe,
+					channels: []
+				};
+			}
 
-      pages.push(page);
-    }
+			universes[channel.universe].channels.push(channel);
+		}
 
-    if (finalPageChannels > 0) {
-      var finalPage = [];
-      for (var i = 0; i < finalPageChannels; i++) {
-        var channel = channels[fullPageCount * channelsPerPage + i];
-        finalPage.push(channel);
-      }
-      pages.push(finalPage);
-    }
+		for (var universeKey in universes) {
+			var universe = universes[universeKey];
+			universe.channelsInPages = channelsIntoPages(universe.channels, 8);
+		}
 
-    return pages;
-  }
+		return universes;
+	}
+
+	function channelsIntoPages(channels, channelsPerPage) {
+		var fullPageCount = Math.floor(channels.length / channelsPerPage);
+		var finalPageChannels = channels.length % channelsPerPage;
+
+		var pages = [];
+
+		for (var i = 0; i < fullPageCount; i++) {
+			var page = [];
+
+			for (var j = 0; j < channelsPerPage; j++) {
+				var channel = channels[i * channelsPerPage + j];
+				page.push(channel);
+			}
+
+			pages.push(page);
+		}
+
+		if (finalPageChannels > 0) {
+			var finalPage = [];
+			for (var i = 0; i < finalPageChannels; i++) {
+				var channel = channels[fullPageCount * channelsPerPage + i];
+				finalPage.push(channel);
+			}
+			pages.push(finalPage);
+		}
+
+		return pages;
+	}
 });

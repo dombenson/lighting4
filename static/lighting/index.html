@@ -57,11 +57,17 @@
 							<a class="item" ng-class="{active: currentView == 'fixtures'}" ng-click="currentView = 'fixtures'">
 								Fixtures
 							</a>
-							<a class="item" ng-class="{active: currentView == 'sequences'}" ng-click="currentView = 'sequences'">
+							<!--<a class="item" ng-class="{active: currentView == 'sequences'}" ng-click="currentView = 'sequences'">
 								Sequences
+							</a>-->
+						</div>
+						<div class="ui menu">
+							<a class="item" ng-repeat="universe in universes" ng-class="{active: $parent.currentUniverse == universe.number}" ng-click="$parent.currentUniverse = universe.number">
+								Universe {{universe.number}}
 							</a>
 						</div>
 					</div>
+
 					<div class="four wide column">
 						<div class="ui segment">
 							<div class="ui vertical fluid buttons">
@@ -85,17 +91,17 @@
 						Channels
 					</h2>
 
-					<div class="ui-segment" ng-if="channelsInPages.length == 0">
+					<div class="ui-segment" ng-if="!currentUniverse || !universes[currentUniverse] || universes[currentUniverse].channelsInPages.length == 0">
 						No channels available
 					</div>
 
-					<div class="four column column doubling ui grid" ng-if="channelsInPages.length > 0">
-						<div class="column" ng-repeat="channelPage in channelsInPages">
+					<div class="four column column doubling ui grid" ng-if="currentUniverse && universes[currentUniverse] && universes[currentUniverse].channelsInPages.length > 0">
+						<div class="column" ng-repeat="channelPage in universes[currentUniverse].channelsInPages">
 							<div class="ui form segment">
 								<div class="field" ng-repeat="channel in channelPage">
 									<label>Channel {{channel.id}}</label>
 									<div class="ui left labeled">
-										<channel-slider channelid="channel.id"/>
+										<channel-slider universe="channel.universe" channelid="channel.id"/>
 									</div>
 								</div>
 							</div>
@@ -111,18 +117,18 @@
 						Fixtures
 					</h2>
 
-					<div class="ui-segment" ng-if="fixtures.length == 0">
+					<div class="ui-segment" ng-if="!currentUniverse || !universes[currentUniverse] || universes[currentUniverse].fixtures.length == 0">
 						No fixtures available
 					</div>
 
-					<div class="three column doubling ui grid" ng-if="fixtures.length > 0">
-						<div fixture-directive="" class="column fixture-{{fixture}}" ng-repeat="fixture in fixtures"
+					<div class="three column doubling ui grid" ng-if="currentUniverse && universes[currentUniverse] && universes[currentUniverse].fixtures.length > 0">
+						<div fixture-directive="" class="column fixture-{{fixture}}" ng-repeat="fixture in universes[currentUniverse].fixtures"
 						     fixturename="fixture"></div>
 					</div>
 				</div>
 			</div>
 
-			<div class="column" ng-if="currentView == 'sequences'">
+			<!--<div class="column" ng-if="currentView == 'sequences'">
 				<div class="ui-segment">
 					<h2 class="ui header">
 						Sequences
@@ -134,7 +140,7 @@
 
 					<div sequence-directive="" class="ui segment" ng-repeat="sequence in sequences" sequenceid="sequence"></div>
 				</div>
-			</div>
+			</div>-->
 		</div>
 	</body>
 </html>

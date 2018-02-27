@@ -12,6 +12,6 @@
     <input type="checkbox" ng-if="channel.canDisable" style="margin-left: 2px; margin-top: 4px" ng-model="!channel.disabled" ng-change="$parent.toggleDisabled(channel)">
   </label>
   <div class="ui left labeled">
-    <channel-slider channelid="channel.channelOffset + firstChannel" maxlevel="channel.maxLevel" minlevel="channel.minLevel" reverse="channel.reverse" enabled="channel.enabled"/>
+    <channel-slider universe="universe" channelid="channel.channelOffset + firstChannel" maxlevel="channel.maxLevel" minlevel="channel.minLevel" reverse="channel.reverse" enabled="channel.enabled"/>
   </div>
 </div>

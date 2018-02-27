@@ -116,7 +116,7 @@ func (this *socketConnection) performWebsocketCycle() bool {
 				log.Errorf("(%d) 'channelState' processing error (%s)", this.id, err)
 			}
 		case trackDetails:
-			log.Infof("(%d) 'trackDetails' not currently handled")
+			log.Infof("(%d) 'trackDetails' not currently handled", this.id)
 		case updateChannel:
 			err = this.processUpdateChannel(message)
 			if err != nil {
