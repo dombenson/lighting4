@@ -16,12 +16,13 @@ type FixtureImpl interface {
 	GetDescription() string
 	GetType() *fixtureType.FixtureType
 	GetFirstChannel() lights.Address
+
+	GetHomeKitAccessory() *accessory.Accessory
+	SetHomeKitAccessory(*accessory.Accessory)
 }
 
 type RGBFixtureImpl interface {
 	FixtureImpl
-
-	GetHomeKitAccessory() *accessory.Accessory
 
 	IsFaderAvailable() bool
 	IsWhiteAvailable() bool

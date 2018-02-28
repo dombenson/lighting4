@@ -22,7 +22,7 @@ func NewChauvetHex(fixture FixtureImpl) *ChauvetHex {
 
 	rgbFixture := ChauvetHex {
 		FixtureImpl:    fixture,
-		baseRGBFixture: newBaseRGBFixture(fixture.GetName(), colorFixtureChannels{
+		baseRGBFixture: newBaseRGBFixture(fixture, colorFixtureChannels{
 			fader: &faderChannel,
 			red:   &redChannel,
 			green: &greenChannel,

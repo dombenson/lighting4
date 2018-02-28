@@ -13,6 +13,7 @@ import (
 	"lighting/amqp/lightingUpdates"
 	"lighting/fixture"
 	"lighting/homekit"
+	"lighting/routes"
 	"lighting/socket"
 	"lighting/store"
 	"net/http"
@@ -47,11 +48,11 @@ func main() {
 		panic(err)
 	}
 
-	fixture1, err := fixture.GetRGBFixture("rear-left")
+	loadedFixtures, err := fixture.GetFixtures()
 	if err != nil {
 		panic(err)
 	}
-	homekit.RegisterFixture(fixture1.GetName(), fixture1.GetHomeKitAccessory())
+	homekit.RegisterFixtures(loadedFixtures)
 
 	homekit.Start("DMX-Lights", "06592309")
 	defer homekit.Stop()
@@ -65,6 +66,8 @@ func main() {
 	mux := goji.NewMux()
 
 	mux.HandleFunc(pat.Get("/lighting/socket"), socket.Handler)
+
+	mux.HandleFunc(pat.Get("/lighting/fixtures/list"), routes.FixturesList)
 
 	staticFilesLocation := "/Users/chris/Development/Personal/lighting4/src/static"
 	mux.Handle(pat.Get("/lighting/*"), http.FileServer(http.Dir(staticFilesLocation)))

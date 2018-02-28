@@ -34,11 +34,13 @@ type colorFixtureChannels struct {
 	uv       *lights.Address
 }
 
-func newBaseRGBFixture(name string, channels colorFixtureChannels) *baseRGBFixture {
+func newBaseRGBFixture(fixture FixtureImpl, channels colorFixtureChannels) *baseRGBFixture {
 	lightbulb := hkService.NewLightbulb()
-	accessory := hkAccessory.New(hkAccessory.Info{Name: name}, hkAccessory.TypeLightbulb)
+	accessory := hkAccessory.New(hkAccessory.Info{Name: fixture.GetName()}, hkAccessory.TypeLightbulb)
 
 	accessory.AddService(lightbulb.Service)
+
+	fixture.SetHomeKitAccessory(accessory)
 
 	var lightModel channellight.ChannelLight
 
@@ -203,10 +205,6 @@ func (this *baseRGBFixture) SetColor(red, green, blue lights.Value, fade time.Du
 	this.SetRedValue(red, fade)
 	this.SetGreenValue(green, fade)
 	this.SetBlueValue(blue, fade)
-}
-
-func (this *baseRGBFixture) GetHomeKitAccessory() *hkAccessory.Accessory {
-	return this.accessory
 }
 
 func (this *baseRGBFixture) ValueChange(change store.ValuesChange) {

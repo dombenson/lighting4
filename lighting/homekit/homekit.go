@@ -6,8 +6,9 @@ package homekit
 
 import (
 	"github.com/brutella/hc"
-	"github.com/brutella/hc/accessory"
+	hkAccessory "github.com/brutella/hc/accessory"
 	"github.com/op/go-logging"
+	"lighting/fixture/fixtureImpl"
 )
 
 var log = logging.MustGetLogger("homekit")
@@ -15,28 +16,34 @@ var log = logging.MustGetLogger("homekit")
 var homeKitTransport hc.Transport
 var initialised = false
 
-var fixtureMap = make(map[string]*accessory.Accessory)
-var fixtures []*accessory.Accessory
+var fixtureMap = make(map[string]*hkAccessory.Accessory)
+var fixtures []*hkAccessory.Accessory
 
-func RegisterFixture(lightKey string, fixture *accessory.Accessory) {
+func RegisterFixtures(fixturesToRegister []fixtureImpl.FixtureImpl) {
 	if initialised {
 		panic("Attempted to register fixture after HomeKit started")
 	}
 
-	_, exists := fixtureMap[lightKey]
-	if exists {
-		panic("Attempted to register a fixture that has already been registered")
-	}
+	for _, fixtureToRegister := range fixturesToRegister {
+		accessory := fixtureToRegister.GetHomeKitAccessory()
+		if accessory != nil {
 
-	fixtures = append(fixtures, fixture)
-	fixtureMap[lightKey] = fixture
+			_, exists := fixtureMap[fixtureToRegister.GetName()]
+			if exists {
+				panic("Attempted to register a fixture that has already been registered")
+			}
+
+			fixtures = append(fixtures, accessory)
+			fixtureMap[fixtureToRegister.GetName()] = accessory
+		}
+	}
 }
 
 func Start(name, pin string) error {
-	bridgeInfo := accessory.Info{
+	bridgeInfo := hkAccessory.Info{
 		Name: name,
 	}
-	bridge := accessory.NewBridge(bridgeInfo)
+	bridge := hkAccessory.NewBridge(bridgeInfo)
 
 	config := hc.Config{
 		Pin: pin,

@@ -6,7 +6,7 @@ module.factory('LightingAPIService', ['$q', '$resource', function ($q, $resource
 	Service.getFixtureList = function () {
 		var deferred = $q.defer();
 
-		var resReq = $resource('/lighting/data/fixtures/list.json');
+		var resReq = $resource('/lighting/fixtures/list');
 
 
 		resReq.get().$promise.then(
