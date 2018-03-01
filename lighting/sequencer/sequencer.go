@@ -4,54 +4,21 @@
 
 package sequencer
 
-import (
-	"lighting/fixture"
-	"log"
-	"time"
-)
+type Sequence interface {
+	GetName() string
+	Render()
+	Stop()
+}
 
-var exampleTicker *time.Ticker
+var currentSequence Sequence
 
-func Start() error {
-	var err error
-	exampleTicker, err = exampleSequence()
-	if err != nil {
-		return err
-	}
-
-	return nil
+func SetSequence(sequence Sequence) {
+	currentSequence = sequence
+	currentSequence.Render()
 }
 
 func Stop() {
-	exampleTicker.Stop()
-}
-
-func exampleSequence() (*time.Ticker, error) {
-	rgb1, err := fixture.GetRGBFixture("rear-left")
-	if err != nil {
-		return nil, err
+	if currentSequence != nil {
+		currentSequence.Stop()
 	}
-
-	ticker := time.NewTicker(10 * time.Second)
-
-	go func() {
-		tickCount := 0
-
-		for range ticker.C {
-			tickCount++
-			switch tickCount {
-			case 1:
-				rgb1.SetColor(255, 0, 0, 1 * time.Second)
-			case 2:
-				log.Println()
-				rgb1.SetColor(0, 255, 0, 1 * time.Second)
-			case 3:
-				log.Println()
-				rgb1.SetColor(0, 0, 255, 1 * time.Second)
-				tickCount = 0
-			}
-		}
-	}()
-
-	return ticker, nil
 }

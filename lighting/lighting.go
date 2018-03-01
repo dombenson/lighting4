@@ -16,6 +16,8 @@ import (
 	"lighting/fixture"
 	"lighting/homekit"
 	"lighting/routes"
+	"lighting/sequencer"
+	"lighting/sequencer/staticSequences"
 	"lighting/socket"
 	"lighting/store"
 	"lighting/tracks"
@@ -75,11 +77,20 @@ func main() {
 	homekit.Start("DMX-Lights", "06592309")
 	defer homekit.Stop()
 
-	//err = sequencer.Start()
-	//if err != nil {
-	//	panic(err)
-	//}
-	//defer sequencer.Stop()
+	defer sequencer.Stop()
+
+	staticSequences.Register(staticSequences.NewTwoColorSequence("Red and Blue",
+	                         staticSequences.NewColor(255, 0, 0),
+	                         staticSequences.NewColor(0, 0, 255)))
+	staticSequences.Register(staticSequences.NewTwoColorSequence("Green and Blue",
+	                         staticSequences.NewColor(0, 255, 0),
+	                         staticSequences.NewColor(0, 0, 255)))
+	staticSequences.Register(staticSequences.NewTwoColorSequence("Red and Green",
+	                         staticSequences.NewColor(255, 0, 0),
+	                         staticSequences.NewColor(0, 255, 0)))
+
+	staticSequences.Start()
+	defer staticSequences.Stop()
 
 	mux := goji.NewMux()
 
