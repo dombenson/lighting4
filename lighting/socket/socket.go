@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/op/go-logging"
 	"lighting/store"
+	"lighting/tracks"
 	"net/http"
 	"sync"
 )
@@ -23,18 +24,20 @@ type socketPayload struct {
 }
 
 const (
-	channelState  = "channelState"
-	trackDetails  = "trackDetails"
-	updateChannel = "updateChannel"
-	ping          = "ping"
-	notifyChange  = "uC"
+	channelState      = "channelState"
+	trackDetails      = "trackDetails"
+	updateChannel     = "updateChannel"
+	ping              = "ping"
+	notifyChange      = "uC"
+	notifyTrackChange = "uT"
 )
 
 type socketConnection struct{
-	id            int
-	mu            *sync.Mutex
-	c             *websocket.Conn
-	unsubscribeFn func()
+	id                  int
+	mu                  *sync.Mutex
+	c                   *websocket.Conn
+	unsubscribeLightsFn func()
+	unsubscribeTracksFn func()
 }
 
 func newSocketConnection(w http.ResponseWriter, r *http.Request) (*socketConnection, error) {
@@ -52,7 +55,8 @@ func newSocketConnection(w http.ResponseWriter, r *http.Request) (*socketConnect
 		c:  c,
 	}
 
-	connection.unsubscribeFn = store.Subscribe(connection.notifyValueChanged())
+	connection.unsubscribeLightsFn = store.Subscribe(connection.notifyValueChanged())
+	connection.unsubscribeLightsFn = tracks.Subscribe(connection.notifyTrackChanged())
 
 	return connection, nil
 }
@@ -80,7 +84,8 @@ func (this *socketConnection) start() {
 }
 
 func (this *socketConnection) close() error {
-	this.unsubscribeFn()
+	this.unsubscribeLightsFn()
+	this.unsubscribeTracksFn()
 
 	err := this.c.Close()
 	if err != nil {
@@ -116,7 +121,10 @@ func (this *socketConnection) performWebsocketCycle() bool {
 				log.Errorf("(%d) 'channelState' processing error (%s)", this.id, err)
 			}
 		case trackDetails:
-			log.Infof("(%d) 'trackDetails' not currently handled", this.id)
+			err = this.processTrackDetails()
+			if err != nil {
+				log.Errorf("(%d) 'trackDetails' processing error (%s)", this.id, err)
+			}
 		case updateChannel:
 			err = this.processUpdateChannel(message)
 			if err != nil {

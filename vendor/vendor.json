@@ -135,6 +135,12 @@
 			"revisionTime": "2018-02-10T20:52:14Z"
 		},
 		{
+			"checksumSHA1": "JnTPHpq8sJIdSTqPo0ExP7dLBrY=",
+			"path": "github.com/cjcormack/gohue",
+			"revision": "7608aeb8c409f330ded6f3bef54f1d48acaa04d4",
+			"revisionTime": "2018-01-07T17:41:26Z"
+		},
+		{
 			"checksumSHA1": "qWSfv6nFxKXv9aIvOB/A+oJ47a8=",
 			"path": "github.com/gorilla/websocket",
 			"revision": "4ac909741dfa57448bfadfdbca0cf7eeaa68f0e2",

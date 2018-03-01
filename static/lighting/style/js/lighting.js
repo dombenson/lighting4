@@ -71,7 +71,6 @@ lightingApp.controller('WebSocketManagerController', function($scope, LightingWe
 
 	function fixturesIntoUniverses(fixtures, universes) {
 		for (var universeKey in fixtures) {
-			console.log(universeKey, universes);
 			universes[universeKey].fixtures = fixtures[universeKey];
 		}
 	}

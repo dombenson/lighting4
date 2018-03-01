@@ -46,13 +46,13 @@ func (this *socketConnection) notifyValueChanged() store.ValueChangeCallback {
 
 		message, err := json.Marshal(details)
 		if err != nil {
-			log.Errorf("(%d:%d) Error in encoding notify (%s)", this.id, err)
+			log.Errorf("(%d) Error in encoding notify (%s)", this.id, err)
 			return
 		}
 
 		err = this.c.WriteMessage(websocket.TextMessage, message)
 		if err != nil {
-			log.Errorf("(%d:%d) Error in notify (%s)", this.id, err)
+			log.Errorf("(%d) Error in notify (%s)", this.id, err)
 			return
 		}
 

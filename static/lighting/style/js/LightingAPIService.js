@@ -81,7 +81,6 @@ module.factory('LightingAPIService', ['$q', '$resource', function ($q, $resource
 
 		resReq.get().$promise.then(
 		function (response) {
-			console.log(response);
 			deferred.resolve(response);
 		}, function (error) {
 			deferred.reject(error);

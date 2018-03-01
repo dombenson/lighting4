@@ -11,11 +11,14 @@ import (
 	"lighting/amqp"
 	"lighting/amqp/lightingControl"
 	"lighting/amqp/lightingUpdates"
+	"lighting/amqp/trackControl"
+	"lighting/amqp/trackUpdates"
 	"lighting/fixture"
 	"lighting/homekit"
 	"lighting/routes"
 	"lighting/socket"
 	"lighting/store"
+	"lighting/tracks"
 	"net/http"
 	"os"
 )
@@ -43,7 +46,22 @@ func main() {
 		panic(err)
 	}
 
+	err = trackControl.Start()
+	if err != nil {
+		panic(err)
+	}
+
+	err = trackUpdates.Start()
+	if err != nil {
+		panic(err)
+	}
+
 	err = store.Sync()
+	if err != nil {
+		panic(err)
+	}
+
+	err = tracks.Sync()
 	if err != nil {
 		panic(err)
 	}
