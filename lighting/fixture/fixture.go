@@ -151,6 +151,10 @@ func doLoadFixture(fileName string) (fixtureImpl.FixtureImpl, error) {
 	switch myBaseFixture.Type.TypeKey {
 	case "hex":
 		fixture = fixtureImpl.NewChauvetHex(myBaseFixture)
+	case "stairville":
+		fixture = fixtureImpl.NewStairville(myBaseFixture)
+	case "spot":
+		fixture = fixtureImpl.NewSpot(myBaseFixture)
 	default:
 		return nil, errors.New(fmt.Sprintf("no type implementation for '%s'", myBaseFixture.Type.TypeKey))
 	}

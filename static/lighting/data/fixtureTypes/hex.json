@@ -1,6 +1,6 @@
 {
   "type": "hex",
-  "channelCount": 8,
+  "channelCount": 12,
   "blackoutChannelOffsets": [
     0
   ],

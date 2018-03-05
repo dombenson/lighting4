@@ -1,0 +1,44 @@
+{
+	"type": "spot",
+	"channelCount": 6,
+	"blackoutChannelOffsets": [
+		0
+	],
+	"details": {
+		"rgbMixer": {
+			"redChannelOffset": 1,
+			"greenChannelOffset": 2,
+			"blueChannelOffset": 3
+		},
+		"channelGroups": [
+			{
+				"name": "Colour Control",
+				"channels": [
+					{
+						"name": "Dimmer",
+						"channelOffset": 0
+					}
+				]
+			}
+		]
+	},
+	"modeSelectors": [
+		{
+			"id": "lightMode",
+			"name": "Light Mode",
+			"channelOffset": 0,
+			"modes": [
+				{
+					"id": "off",
+					"name": "Off",
+					"channelLevel": 0
+				},
+				{
+					"id": "dmx",
+					"name": "DMX Mode",
+					"channelLevel": 240
+				}
+			]
+		}
+	]
+}

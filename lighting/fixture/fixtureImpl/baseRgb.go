@@ -35,56 +35,60 @@ type colorFixtureChannels struct {
 }
 
 func newBaseRGBFixture(fixture FixtureImpl, channels colorFixtureChannels) *baseRGBFixture {
-	lightbulb := hkService.NewLightbulb()
-	accessory := hkAccessory.New(hkAccessory.Info{Name: fixture.GetName()}, hkAccessory.TypeLightbulb)
-
-	accessory.AddService(lightbulb.Service)
-
-	fixture.SetHomeKitAccessory(accessory)
-
-	var lightModel channellight.ChannelLight
-
-	if channels.red != nil &&
-	   channels.green != nil &&
-	   channels.blue != nil {
-		if channels.white != nil {
-			lightModel = &channellight.SevenChannelLight{}
-		} else {
-			lightModel = &channellight.FourChannelLight{}
-		}
-	} else {
-		panic("attempted to create an RGB fixture without channels specified for red, green and blue")
-	}
-
 	baseRGBFixture := &baseRGBFixture{
 		colorFixtureChannels: channels,
-		lightbulb:            lightbulb,
-		accessory:            accessory,
-		lightModel:           lightModel,
 	}
 
-	lightbulb.On.OnValueRemoteUpdate(func(on bool) {
-		baseRGBFixture.syncColorsForLight()
-	})
+	if channels.fader != nil {
+		var lightModel channellight.ChannelLight
 
-	lightbulb.Brightness.OnValueRemoteUpdate(func(b int) {
-		baseRGBFixture.syncColorsForLight()
-	})
+		lightbulb := hkService.NewLightbulb()
+		accessory := hkAccessory.New(hkAccessory.Info{Name: fixture.GetName()}, hkAccessory.TypeLightbulb)
 
-	lightbulb.Hue.OnValueRemoteUpdate(func(h float64) {
-		baseRGBFixture.syncColorsForLight()
-	})
+		accessory.AddService(lightbulb.Service)
 
-	lightbulb.Saturation.OnValueRemoteUpdate(func(s float64) {
-		baseRGBFixture.syncColorsForLight()
-	})
+		fixture.SetHomeKitAccessory(accessory)
 
-	store.Subscribe(baseRGBFixture.ValueChange)
+		if channels.red != nil &&
+		   channels.green != nil &&
+		   channels.blue != nil {
+			if channels.white != nil {
+				lightModel = &channellight.SevenChannelLight{}
+			} else {
+				lightModel = &channellight.FourChannelLight{}
+			}
+		}
+
+		baseRGBFixture.lightModel = lightModel
+		baseRGBFixture.lightbulb = lightbulb
+		baseRGBFixture.accessory = accessory
+
+		lightbulb.On.OnValueRemoteUpdate(func(on bool) {
+			baseRGBFixture.syncColorsForLight()
+		})
+
+		lightbulb.Brightness.OnValueRemoteUpdate(func(b int) {
+			baseRGBFixture.syncColorsForLight()
+		})
+
+		lightbulb.Hue.OnValueRemoteUpdate(func(h float64) {
+			baseRGBFixture.syncColorsForLight()
+		})
+
+		lightbulb.Saturation.OnValueRemoteUpdate(func(s float64) {
+			baseRGBFixture.syncColorsForLight()
+		})
+
+		store.Subscribe(baseRGBFixture.ValueChange)
+	}
 
 	return baseRGBFixture
 }
 
 func (this *baseRGBFixture) syncColorsForLight() {
+	if this.lightModel == nil {
+		return
+	}
 	this.lightModel.SetColor(this.lightbulb)
 
 	switch v := this.lightModel.(type) {
@@ -114,7 +118,7 @@ func (this *baseRGBFixture) syncColorsForLight() {
 
 func (this *baseRGBFixture) doGetValue(description string, channel *lights.Address) lights.Value {
 	if channel == nil {
-		log.Infof("(%s) Requested '%s' channel when not implemented", this.accessory.Info.Name, description)
+		log.Infof("Requested '%s' channel when not implemented",description)
 		return 0
 	}
 	return store.GetValue(*channel)
@@ -208,8 +212,12 @@ func (this *baseRGBFixture) SetColor(red, green, blue lights.Value, fade time.Du
 }
 
 func (this *baseRGBFixture) ValueChange(change store.ValuesChange) {
-	switch change.Channel {
-	case *this.colorFixtureChannels.fader, *this.colorFixtureChannels.red, *this.colorFixtureChannels.green, *this.colorFixtureChannels.blue, *this.colorFixtureChannels.white, *this.colorFixtureChannels.amber, *this.colorFixtureChannels.uv:
-		log.Infof("(%s) Colour channel %d changed to %d (HomeKit update would happen here)", this.accessory.Info.Name.Value, change.Channel, change.Value)
+	if this.lightbulb == nil {
+		return
 	}
+
+	//switch change.Channel {
+	//case *this.colorFixtureChannels.fader, *this.colorFixtureChannels.red, *this.colorFixtureChannels.green, *this.colorFixtureChannels.blue, *this.colorFixtureChannels.white, *this.colorFixtureChannels.amber, *this.colorFixtureChannels.uv:
+	//	log.Infof("Colour channel %d changed to %d (HomeKit update would happen here)", change.Channel, change.Value)
+	//}
 }
