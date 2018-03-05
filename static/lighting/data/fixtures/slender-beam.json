@@ -1,7 +1,0 @@
-{
-  "name": "slender-beam",
-  "description": "Quad Bar",
-  "firstChannel": 65,
-  "type": "movingQuad-1chan",
-  "universe": 2
-}

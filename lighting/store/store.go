@@ -114,7 +114,7 @@ func GetSeqNo(channel lights.Address) int {
 }
 
 func GetUniverses() []int {
-	return []int{1, 2}
+	return []int{1}
 }
 
 func GetLastCommissionedChannel(universe int) lights.ChannelNo {

@@ -15,6 +15,7 @@ type Color struct {
 	Red   lights.Value
 	Green lights.Value
 	Blue  lights.Value
+	UV    bool
 }
 
 func NewColor(red, green, blue lights.Value) Color {
@@ -25,8 +26,17 @@ func NewColor(red, green, blue lights.Value) Color {
 	}
 }
 
-var colorOneFixtureKeys = []string{"tv-left"}
-var colorTwoFixtureKeys = []string{"tv-right"}
+func NewUVColor() Color {
+	return Color{
+		Red:   128,
+		Green: 0,
+		Blue:  255,
+		UV:    true,
+	}
+}
+
+var colorOneFixtureKeys = []string{"outdoor-1", "living-1", "living-3", "dining-1", "dining-3", "kitchen-1", "mirror-1", "mirror-3"}
+var colorTwoFixtureKeys = []string{"outdoor-2", "living-2", "living-4", "dining-2", "dining-4", "kitchen-2", "mirror-2"}
 
 type TwoColorSequence struct {
 	Name             string
@@ -52,7 +62,15 @@ func (this *TwoColorSequence) Stop() {
 
 func (this *TwoColorSequence) setColorOnFixtures(fixtures []fixtureImpl.RGBFixtureImpl, color Color) {
 	for _, colorFixture := range fixtures {
-		colorFixture.SetColor(color.Red, color.Green, color.Blue, 1 * time.Second)
+		if color.UV && colorFixture.IsUvAvailable() {
+			colorFixture.SetColor(0, 0, 0, 1 * time.Second)
+			colorFixture.SetUvValue(255, 1 * time.Second)
+		} else {
+			if colorFixture.IsUvAvailable() {
+				colorFixture.SetUvValue(0, 1 * time.Second)
+			}
+			colorFixture.SetColor(color.Red, color.Green, color.Blue, 1 * time.Second)
+		}
 	}
 }
 

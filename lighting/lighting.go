@@ -88,6 +88,15 @@ func main() {
 	staticSequences.Register(staticSequences.NewTwoColorSequence("Red and Green",
 	                         staticSequences.NewColor(255, 0, 0),
 	                         staticSequences.NewColor(0, 255, 0)))
+	staticSequences.Register(staticSequences.NewTwoColorSequence("Mint and blackberry",
+	                         staticSequences.NewColor(135, 14, 68),
+	                         staticSequences.NewColor(128, 211, 155)))
+	staticSequences.Register(staticSequences.NewTwoColorSequence("Lemon Blueberry",
+	                         staticSequences.NewColor(237, 246, 25),
+	                         staticSequences.NewColor(160, 70, 224)))
+	staticSequences.Register(staticSequences.NewTwoColorSequence("UV!",
+	                         staticSequences.NewUVColor(),
+	                         staticSequences.NewUVColor()))
 
 	staticSequences.Start()
 	defer staticSequences.Stop()

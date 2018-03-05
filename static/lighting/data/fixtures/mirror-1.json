@@ -1,0 +1,7 @@
+{
+  "name": "mirror-1",
+  "description": "Mirror One",
+  "firstChannel": 225,
+  "universe": 1,
+  "type": "spot"
+}

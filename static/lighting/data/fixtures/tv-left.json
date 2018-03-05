@@ -1,7 +1,0 @@
-{
-  "name": "tv-left",
-  "description": "TV Left",
-  "firstChannel": 33,
-  "type": "hex",
-  "universe": 2
-}
