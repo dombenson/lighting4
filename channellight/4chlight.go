@@ -25,13 +25,14 @@ type FourChannelLight struct {
 }
 
 func (this *FourChannelLight) SetColor(lightbulb *service.Lightbulb) {
-	this.baseChannelLight.SetColor(lightbulb)
-	newOutputColor := FourChannelColor{}
-	newOutputColor.baseChannelColor.SetColor(this.targetColor)
-	newOutputColor.calculateRed(this.targetColor)
-	newOutputColor.calculateGreen(this.targetColor)
-	newOutputColor.calculateBlue(this.targetColor)
-	this.outputColor = newOutputColor
+	if this.baseChannelLight.SetColor(lightbulb) {
+		newOutputColor := FourChannelColor{}
+		newOutputColor.baseChannelColor.SetColor(this.targetColor)
+		newOutputColor.calculateRed(this.targetColor)
+		newOutputColor.calculateGreen(this.targetColor)
+		newOutputColor.calculateBlue(this.targetColor)
+		this.outputColor = newOutputColor
+	}
 }
 
 func (this *FourChannelLight) GetOutputColor() FourChannelColor {

@@ -24,10 +24,11 @@ type FiveChannelLight struct {
 }
 
 func (this *FiveChannelLight) SetColor(lightbulb *service.Lightbulb) {
-	this.baseChannelLight.SetColor(lightbulb)
-	newOutputColor := FiveChannelColor{}
-	newOutputColor.SetColor(this.targetColor)
-	this.outputColor = newOutputColor
+	if this.baseChannelLight.SetColor(lightbulb) {
+		newOutputColor := FiveChannelColor{}
+		newOutputColor.SetColor(this.targetColor)
+		this.outputColor = newOutputColor
+	}
 }
 
 func (this *FiveChannelLight) GetOutputColor() FiveChannelColor {

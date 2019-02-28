@@ -13,12 +13,16 @@ type baseChannelColor struct {
 	Brightness int
 }
 
-func (this *baseChannelLight) SetColor(lightbulb *service.Lightbulb) {
+func (this *baseChannelLight) SetColor(lightbulb *service.Lightbulb) bool {
 	newColor := HSLColor{}
 	newColor.Hue = lightbulb.Hue.GetValue()
 	newColor.Saturation = lightbulb.Saturation.GetValue()
 	newColor.Brightness = lightbulb.Brightness.GetValue()
-	this.targetColor = newColor
+	if newColor != this.targetColor {
+		this.targetColor = newColor
+		return true
+	}
+	return false
 }
 
 func (this *baseChannelLight) GetColor() HSLColor {

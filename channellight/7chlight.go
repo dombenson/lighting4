@@ -18,10 +18,11 @@ type SevenChannelLight struct {
 }
 
 func (this *SevenChannelLight) SetColor(lightbulb *service.Lightbulb) {
-	this.baseChannelLight.SetColor(lightbulb)
-	newOutputColor := SevenChannelColor{}
-	newOutputColor.SetColor(this.targetColor)
-	this.outputColor = newOutputColor
+	if this.baseChannelLight.SetColor(lightbulb) {
+		newOutputColor := SevenChannelColor{}
+		newOutputColor.SetColor(this.targetColor)
+		this.outputColor = newOutputColor
+	}
 }
 
 func (this *SevenChannelLight) GetOutputColor() SevenChannelColor {
